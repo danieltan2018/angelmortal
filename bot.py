@@ -48,7 +48,7 @@ def start(update, context):
 
 def unknown(update, context):
     update.message.reply_text(
-        "*COMMANDS*\n/join - Join the game\n/message - Send messages\n\n*ADMIN COMMANDS*\n/yfcampcomm - Hmm...\n/newgame - Start game\n/endgame - Stop game\n/broadcast - Send to all campers", parse_mode=telegram.ParseMode.MARKDOWN)
+        "*COMMANDS*\n/join - Join the game\n/message - Send messages\n/cc - Message to Camp Comm\n\n*ADMIN COMMANDS*\n/yfcampcomm - Hmm...\n/newgame - Start game\n/endgame - Stop game\n/broadcast - Send to all campers", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def join(update, context):
@@ -146,13 +146,29 @@ def broadcast(update, context):
     message = parse(update.message.text, len("broadcast"))
     if len(message) < 1:
         update.message.reply_text(
-            "_Type your message after the command\ne.g._ /message Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
+            "_Type your message after the command\ne.g._ /broadcast Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         for user_id in userdict:
             bot.send_message(
                 chat_id=user_id, text="*BROADCAST FROM YF CAMP COMM:*\n{}".format(message), parse_mode=telegram.ParseMode.MARKDOWN)
         update.message.reply_text(
-            "_Broadcast sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
+            "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+@useronly
+def cc(update, context):
+    message = parse(update.message.text, len("cc"))
+    if len(message) < 1:
+        update.message.reply_text(
+            "_Type your message after the command\ne.g._ /cc Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
+    else:
+        user_id = update.message.from_user.id
+        sender_name = userdict[user_id]
+        for user_id in adminlist:
+            bot.send_message(
+                chat_id=user_id, text="*Message to Camp Comm from {}:*\n{}".format(sender_name, message), parse_mode=telegram.ParseMode.MARKDOWN)
+        update.message.reply_text(
+            "_Message sent to Camp Comm!_", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @useronly
@@ -423,6 +439,8 @@ def main():
     dispatcher.add_handler(endgame_handler)
     broadcast_handler = CommandHandler('broadcast', broadcast)
     dispatcher.add_handler(broadcast_handler)
+    cc_handler = CommandHandler('cc', cc)
+    dispatcher.add_handler(cc_handler)
     tester_handler = CommandHandler('tester', tester)
     dispatcher.add_handler(tester_handler)
     unknown_handler = MessageHandler(Filters.command, unknown)
