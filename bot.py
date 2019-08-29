@@ -4,7 +4,6 @@ from telegram.ext import (Updater, CommandHandler,
 import logging
 from functools import wraps
 import random
-import time
 from cred import bottoken, adminpass
 
 bot = telegram.Bot(token=bottoken)
@@ -103,7 +102,6 @@ def newgame(update, context):
         mortal_name = userdict[mortal_id]
         bot.send_message(
             chat_id=user_id, text="Your mortal is: *{mortal}*\nUse /message to talk to them.".format(mortal=mortal_name), parse_mode=telegram.ParseMode.MARKDOWN)
-        time.sleep(0.05)
     update.message.reply_text("Game started!")
 
 
@@ -140,7 +138,6 @@ def endgame(update, context):
         angel_name = userdict[angel_id]
         bot.send_message(
             chat_id=user_id, text="Your angel was: *{angel}*".format(angel=angel_name), parse_mode=telegram.ParseMode.MARKDOWN)
-        time.sleep(0.05)
     update.message.reply_text("Game stopped!")
 
 
@@ -154,9 +151,8 @@ def broadcast(update, context):
         for user_id in userdict:
             bot.send_message(
                 chat_id=user_id, text="*BROADCAST FROM YF CAMP COMM:*\n{}".format(message), parse_mode=telegram.ParseMode.MARKDOWN)
-            time.sleep(0.05)
         update.message.reply_text(
-            "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+            "_Broadcast sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @useronly
@@ -229,101 +225,91 @@ def selectcamper(update, context):
 
 def sendtext(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New message from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_message(
         chat_id=context.user_data['recipient'], text=update.message.text)
     update.message.reply_text(
-        "_Message sent to *{}*!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
-
+        "_Message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendphoto(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New photo from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New photo from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_photo(
         chat_id=context.user_data['recipient'], photo=update.message.photo[-1], caption=update.message.caption)
     update.message.reply_text(
-        "_Photo sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Photo sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendaudio(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New audio from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New audio from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_audio(
         chat_id=context.user_data['recipient'], audio=update.message.audio)
     update.message.reply_text(
-        "_Audio sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Audio sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def senddocument(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New document from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New document from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_document(
         chat_id=context.user_data['recipient'], document=update.message.document)
     update.message.reply_text(
-        "_Document sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Document sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendvideo(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New video from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New video from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_video(
         chat_id=context.user_data['recipient'], video=update.message.video)
     update.message.reply_text(
-        "_Video sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Video sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendanimation(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New animation from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New animation from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_animation(
         chat_id=context.user_data['recipient'], animation=update.message.animation)
     update.message.reply_text(
-        "_Animation sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Animation sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendvoice(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New voice message from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New voice message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_voice(
         chat_id=context.user_data['recipient'], voice=update.message.voice)
     update.message.reply_text(
-        "_Voice message sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Voice message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendvideonote(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New video message from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New video message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_video_note(
         chat_id=context.user_data['recipient'], video_note=update.message.video_note)
     update.message.reply_text(
-        "_Video message sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Video message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
 def sendsticker(update, context):
     bot.send_message(
-        chat_id=context.user_data['recipient'], text="New sticker from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New sticker from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_sticker(
         chat_id=context.user_data['recipient'], sticker=update.message.sticker)
     update.message.reply_text(
-        "_Sticker sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
-    time.sleep(0.05)
+        "_Sticker sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     return CONTENT
 
 
@@ -450,7 +436,10 @@ def main():
     get_gamelist()
 
     updater.start_polling()
+    print("Bot is running. Press Ctrl+C to stop.")
+    print("Please wait for confirmation before closing.")
     updater.idle()
+    print("Bot stopped successfully.")
 
 
 if __name__ == '__main__':
