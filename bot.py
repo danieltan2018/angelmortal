@@ -42,6 +42,8 @@ def useronly(func):
 
 def start(update, context):
     update.message.reply_text(
+        "`Bot is in BETA TESTING\nReport bugs to Daniel Tan`", parse_mode=telegram.ParseMode.MARKDOWN)
+    update.message.reply_text(
         "*Welcome to YF Camp 2019!*\nPress /join to enter the Angel & Mortal bot.", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
@@ -153,6 +155,8 @@ def broadcast(update, context):
             bot.send_message(
                 chat_id=user_id, text="*BROADCAST FROM YF CAMP COMM:*\n{}".format(message), parse_mode=telegram.ParseMode.MARKDOWN)
             sleep(0.05)
+        update.message.reply_text(
+            "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @useronly
@@ -188,8 +192,8 @@ def selectmortal(update, context):
     recipient_name = userdict[context.user_data['recipient']]
     update.message.reply_text(
         "I will anonymously send your messages to *{recipient}* until you type /exit.".format(recipient=recipient_name), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
-    update.message.reply_text(
-        "I only accept: Text, Stickers, Photos, Voice/Video Messages. Other files will not be sent.")
+    context.bot.send_chat_action(chat_id=context.user_data['recipient'],
+                                 action=telegram.ChatAction.TYPING)
     return CONTENT
 
 
@@ -200,8 +204,8 @@ def selectangel(update, context):
     context.user_data['sender'] = sender_name
     update.message.reply_text(
         "I will anonymously send your messages to *your angel* until you type /exit.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
-    update.message.reply_text(
-        "I only accept: Text, Stickers, Photos, Voice/Video Messages. Other files will not be sent.")
+    context.bot.send_chat_action(chat_id=context.user_data['recipient'],
+                                 action=telegram.ChatAction.TYPING)
     return CONTENT
 
 
@@ -218,8 +222,8 @@ def selectcamper(update, context):
         recipient_name = userdict[recipient]
         update.message.reply_text(
             "I will anonymously send your messages to *{}* until you type /exit.".format(recipient_name), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
-        update.message.reply_text(
-            "I only accept: Text, Stickers, Photos, Voice/Video Messages. Other files will not be sent.")
+    context.bot.send_chat_action(chat_id=context.user_data['recipient'],
+                                 action=telegram.ChatAction.TYPING)
     return CONTENT
 
 
@@ -230,6 +234,7 @@ def sendtext(update, context):
         chat_id=context.user_data['recipient'], text=update.message.text)
     update.message.reply_text(
         "_Message sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
     return CONTENT
 
 
@@ -240,6 +245,51 @@ def sendphoto(update, context):
         chat_id=context.user_data['recipient'], photo=update.message.photo[-1], caption=update.message.caption)
     update.message.reply_text(
         "_Photo sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
+    return CONTENT
+
+
+def sendaudio(update, context):
+    bot.send_message(
+        chat_id=context.user_data['recipient'], text="New audio from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    bot.send_audio(
+        chat_id=context.user_data['recipient'], audio=update.message.audio)
+    update.message.reply_text(
+        "_Audio sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
+    return CONTENT
+
+
+def senddocument(update, context):
+    bot.send_message(
+        chat_id=context.user_data['recipient'], text="New document from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    bot.send_document(
+        chat_id=context.user_data['recipient'], document=update.message.document)
+    update.message.reply_text(
+        "_Document sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
+    return CONTENT
+
+
+def sendvideo(update, context):
+    bot.send_message(
+        chat_id=context.user_data['recipient'], text="New video from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    bot.send_video(
+        chat_id=context.user_data['recipient'], video=update.message.video)
+    update.message.reply_text(
+        "_Video sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
+    return CONTENT
+
+
+def sendanimation(update, context):
+    bot.send_message(
+        chat_id=context.user_data['recipient'], text="New animation from *{sender}* below!".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    bot.send_animation(
+        chat_id=context.user_data['recipient'], animation=update.message.animation)
+    update.message.reply_text(
+        "_Animation sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
     return CONTENT
 
 
@@ -250,6 +300,7 @@ def sendvoice(update, context):
         chat_id=context.user_data['recipient'], voice=update.message.voice)
     update.message.reply_text(
         "_Voice message sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
     return CONTENT
 
 
@@ -260,6 +311,7 @@ def sendvideonote(update, context):
         chat_id=context.user_data['recipient'], video_note=update.message.video_note)
     update.message.reply_text(
         "_Video message sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
     return CONTENT
 
 
@@ -270,6 +322,7 @@ def sendsticker(update, context):
         chat_id=context.user_data['recipient'], sticker=update.message.sticker)
     update.message.reply_text(
         "_Sticker sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+    sleep(0.05)
     return CONTENT
 
 
@@ -358,6 +411,10 @@ def main():
                      MessageHandler(Filters.regex('^@'), selectcamper)],
             CONTENT: [MessageHandler(Filters.regex('^/exit$'), exit),
                       MessageHandler(Filters.photo, sendphoto),
+                      MessageHandler(Filters.audio, sendaudio),
+                      MessageHandler(Filters.document, senddocument),
+                      MessageHandler(Filters.video, sendvideo),
+                      MessageHandler(Filters.animation, sendanimation),
                       MessageHandler(Filters.voice, sendvoice),
                       MessageHandler(Filters.video_note, sendvideonote),
                       MessageHandler(Filters.sticker, sendsticker),
