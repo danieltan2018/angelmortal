@@ -188,10 +188,10 @@ def message_err(update, context):
 
 def selectmortal(update, context):
     context.user_data['recipient'] = context.user_data['mortal']
-    context.user_data['sender'] = 'your angel'
-    recipient_name = userdict[context.user_data['recipient']]
+    context.user_data['sender'] = 'Your Angel'
+    context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
     update.message.reply_text(
-        "I will anonymously send your messages to *{recipient}* until you type /exit.".format(recipient=recipient_name), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+        "I will send your messages (anonymously) to *{}* until you type /exit.".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
     context.bot.send_chat_action(chat_id=context.user_data['recipient'],
                                  action=telegram.ChatAction.TYPING)
     return CONTENT
@@ -202,8 +202,9 @@ def selectangel(update, context):
     user_id = update.message.from_user.id
     sender_name = userdict[user_id]
     context.user_data['sender'] = sender_name
+    context.user_data['recipient_name'] = 'Your Angel'
     update.message.reply_text(
-        "I will anonymously send your messages to *your angel* until you type /exit.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+        "I will send your messages (with your name) to *Your Angel* until you type /exit.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
     context.bot.send_chat_action(chat_id=context.user_data['recipient'],
                                  action=telegram.ChatAction.TYPING)
     return CONTENT
@@ -217,11 +218,10 @@ def selectcamper(update, context):
         update.message.reply_text(
             "*Username not found.*\nType /message again to send a message.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
     else:
-        recipient = usernamedict[user_name]
-        context.user_data['recipient'] = recipient
-        recipient_name = userdict[recipient]
+        context.user_data['recipient'] = usernamedict[user_name]
+        context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
         update.message.reply_text(
-            "I will anonymously send your messages to *{}* until you type /exit.".format(recipient_name), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+            "I will send your messages (anonymously) to *{}* until you type /exit.".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
     context.bot.send_chat_action(chat_id=context.user_data['recipient'],
                                  action=telegram.ChatAction.TYPING)
     return CONTENT
@@ -233,8 +233,9 @@ def sendtext(update, context):
     bot.send_message(
         chat_id=context.user_data['recipient'], text=update.message.text)
     update.message.reply_text(
-        "_Message sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+        "_Message sent to *{}*!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
     time.sleep(0.05)
+
     return CONTENT
 
 
