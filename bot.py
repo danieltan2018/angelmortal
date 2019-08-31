@@ -47,8 +47,20 @@ def start(update, context):
 
 
 def unknown(update, context):
-    update.message.reply_text(
-        "*COMMANDS*\n/join - Join the game\n/message - Send messages\n/cc - Message to Camp Comm\n\n*ADMIN COMMANDS*\n/yfcampcomm - Hmm...\n/newgame - Start game\n/endgame - Stop game\n/broadcast - Send to all campers", parse_mode=telegram.ParseMode.MARKDOWN)
+    commands = '''
+*COMMANDS*
+/join - Join the game
+/message - Send messages
+/cc - Message to Camp Comm
+
+*ADMIN COMMANDS*
+/yfcampcomm - Hmm...
+/newgame - Start game
+/endgame - Stop game
+/broadcast - Send to all campers
+/players - List of all players
+    '''
+    update.message.reply_text(commands, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def join(update, context):
@@ -169,6 +181,19 @@ def cc(update, context):
                 chat_id=user_id, text="*Message to Camp Comm from {}:*\n{}".format(sender_name, message), parse_mode=telegram.ParseMode.MARKDOWN)
         update.message.reply_text(
             "_Message sent to Camp Comm!_", parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+@adminonly
+def players(update, context):
+    context.bot.send_chat_action(chat_id=update.message.chat_id,
+                                 action=telegram.ChatAction.TYPING)
+    count = 1
+    playerlist = "*Players:*\n"
+    for playername in userdict.values():
+        playerlist += "{}. {}\n".format(count, playername)
+        count += 1
+    update.message.reply_text(
+        playerlist, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @useronly
@@ -441,6 +466,8 @@ def main():
     dispatcher.add_handler(broadcast_handler)
     cc_handler = CommandHandler('cc', cc)
     dispatcher.add_handler(cc_handler)
+    players_handler = CommandHandler('players', players)
+    dispatcher.add_handler(players_handler)
     tester_handler = CommandHandler('tester', tester)
     dispatcher.add_handler(tester_handler)
     unknown_handler = MessageHandler(Filters.command, unknown)
