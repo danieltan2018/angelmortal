@@ -197,6 +197,12 @@ def players(update, context):
 
 
 @useronly
+def message_err(update, context):
+    update.message.reply_text(
+        "Are you trying to send a message to your angel or mortal? Type /message first.")
+
+
+@useronly
 def message(update, context):
     user_id = update.message.from_user.id
     mortal_id = mymortal.get(user_id)
@@ -216,11 +222,6 @@ def message(update, context):
 def invalid(update, context):
     update.message.reply_text(
         "_I was not expecting this response. Please try again._", parse_mode=telegram.ParseMode.MARKDOWN)
-
-
-def message_err(update, context):
-    update.message.reply_text(
-        "Are you trying to send a message to your angel or mortal? Type /message first.")
 
 
 def selectmortal(update, context):
