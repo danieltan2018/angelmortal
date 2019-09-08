@@ -222,6 +222,7 @@ def message(update, context):
 def invalid(update, context):
     update.message.reply_text(
         "_I was not expecting this response. Please try again._", parse_mode=telegram.ParseMode.MARKDOWN)
+    return TARGET
 
 
 def selectmortal(update, context):
@@ -254,15 +255,16 @@ def selectcamper(update, context):
     user_name = user_name.strip('@')
     if user_name not in usernamedict:
         update.message.reply_text(
-            "*Username not found.*\nType /message again to send a message.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+            "*Username not found.*", parse_mode=telegram.ParseMode.MARKDOWN)
+        return TARGET
     else:
         context.user_data['recipient'] = usernamedict[user_name]
         context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
         update.message.reply_text(
             "I will send your messages (anonymously) to *{}* until you type /exit.".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
-    context.bot.send_chat_action(chat_id=context.user_data['recipient'],
-                                 action=telegram.ChatAction.TYPING)
-    return CONTENT
+        context.bot.send_chat_action(
+            chat_id=context.user_data['recipient'], action=telegram.ChatAction.TYPING)
+        return CONTENT
 
 
 def sendtext(update, context):
