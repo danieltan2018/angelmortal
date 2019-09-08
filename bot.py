@@ -41,8 +41,6 @@ def useronly(func):
 
 def start(update, context):
     update.message.reply_text(
-        "`Bot is in BETA TESTING\nReport bugs to Daniel Tan`", parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
         "*Welcome to YF Camp 2019!*\nPress /join to enter the Angel & Mortal bot.", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
@@ -82,7 +80,7 @@ def join(update, context):
         if user_name != None:
             with open('usernames.txt', 'a+') as usernamefile:
                 usernamefile.write("{},{}\n".format(user_name, user_id))
-            usernamedict[user_id] = user_name
+            usernamedict[user_name] = user_id
         update.message.reply_text(
             "Your name has been added to the list.\nPress /help for info on commands.")
 
@@ -216,12 +214,21 @@ def message(update, context):
         context.user_data['angel'] = angel_id
         update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.",
                                   parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
-    return TARGET
+        return TARGET
 
 
 def invalid(update, context):
-    update.message.reply_text(
-        "_I was not expecting this response. Please try again._", parse_mode=telegram.ParseMode.MARKDOWN)
+    if 'recipient' in context.user_data:
+        update.message.reply_text(
+            "_Unable to send this message to_ *{}*".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
+        context.user_data.clear()
+        update.message.reply_text(
+            "*Exited messaging mode.*\nType /message again to send a message.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+        return ConversationHandler.END
+    else:
+        update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.",
+                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
+        return TARGET
 
 
 def selectmortal(update, context):
@@ -357,6 +364,7 @@ def sendsticker(update, context):
 
 
 def exit(update, context):
+    context.user_data.clear()
     update.message.reply_text(
         "*Exited messaging mode.*\nType /message again to send a message.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
     return ConversationHandler.END
