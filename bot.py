@@ -222,7 +222,6 @@ def message(update, context):
 def invalid(update, context):
     update.message.reply_text(
         "_I was not expecting this response. Please try again._", parse_mode=telegram.ParseMode.MARKDOWN)
-    return TARGET
 
 
 def selectmortal(update, context):
