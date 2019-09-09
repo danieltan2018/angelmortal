@@ -57,6 +57,7 @@ def unknown(update, context):
 /endgame - Stop game
 /broadcast - Send to all campers
 /players - List of all players
+/reset - Reloads lists from file
     '''
     update.message.reply_text(commands, parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -428,8 +429,13 @@ def parse(text, length):
 
 
 @adminonly
-def tester(update, context):
-    pass
+def reset(update, context):
+    get_users()
+    get_usernames()
+    get_admin()
+    get_gamelist()
+    update.message.reply_text(
+        "_Reset complete._", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def main():
@@ -478,8 +484,8 @@ def main():
     dispatcher.add_handler(cc_handler)
     players_handler = CommandHandler('players', players)
     dispatcher.add_handler(players_handler)
-    tester_handler = CommandHandler('tester', tester)
-    dispatcher.add_handler(tester_handler)
+    reset_handler = CommandHandler('reset', reset)
+    dispatcher.add_handler(reset_handler)
     unknown_handler = MessageHandler(Filters.command, unknown)
     dispatcher.add_handler(unknown_handler)
     message_handler = MessageHandler(Filters.all, message_err)
