@@ -1,6 +1,7 @@
 import telegram.bot
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, ConversationHandler, MessageQueue as mq)
+from telegram.utils.request import Request
 import logging
 from functools import wraps
 import random
@@ -456,7 +457,7 @@ def reset(update, context):
 
 def main():
     request = Request(con_pool_size=8)
-    mybot = MQBot(token=bottoken, request=request, mqueue=q)
+    mybot = MQBot(token=bottoken, request=request, mqueue=mq.MessageQueue())
     updater = Updater(
         token=bottoken, workers=32, bot=mybot, use_context=True)
     dispatcher = updater.dispatcher
