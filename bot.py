@@ -463,9 +463,9 @@ def tester(update, context):
 
 
 def main():
-    request = Request(con_pool_size=36)
+    request = Request(con_pool_size=8)
     mybot = MQBot(token=bottoken, request=request, mqueue=mq.MessageQueue())
-    updater = Updater(workers=32, bot=mybot, use_context=True)
+    updater = Updater(workers=8, bot=mybot, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
