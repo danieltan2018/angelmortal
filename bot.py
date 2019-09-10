@@ -77,7 +77,7 @@ def adminonly(func):
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
         if user_id not in adminlist:
-            bot.send_message(
+            context.bot.send_message(
                 chat_id=user_id, text="*CAMP COMM ONLY*\nYou shall not pass!", parse_mode=telegram.ParseMode.MARKDOWN)
             return
         return func(update, context, *args, **kwargs)
@@ -168,7 +168,7 @@ def newgame(update, context):
     for user_id in mymortal:
         mortal_id = mymortal[user_id]
         mortal_name = userdict[mortal_id]
-        bot.send_message(
+        context.bot.send_message(
             chat_id=user_id, text="Your mortal is: *{mortal}*\nUse /message to talk to them.".format(mortal=mortal_name), parse_mode=telegram.ParseMode.MARKDOWN)
     update.message.reply_text("Game started!")
 
@@ -204,7 +204,7 @@ def endgame(update, context):
     for user_id in myangel:
         angel_id = myangel[user_id]
         angel_name = userdict[angel_id]
-        bot.send_message(
+        context.bot.send_message(
             chat_id=user_id, text="Your angel was: *{angel}*".format(angel=angel_name), parse_mode=telegram.ParseMode.MARKDOWN)
     update.message.reply_text("Game stopped!")
 
@@ -217,7 +217,7 @@ def broadcast(update, context):
             "_Type your message after the command\ne.g._ /broadcast Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         for user_id in userdict:
-            bot.send_message(
+            context.bot.send_message(
                 chat_id=user_id, text="*BROADCAST FROM YF CAMP COMM:*\n{}".format(message), parse_mode=telegram.ParseMode.MARKDOWN)
         update.message.reply_text(
             "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
@@ -233,7 +233,7 @@ def cc(update, context):
         user_id = update.message.from_user.id
         sender_name = userdict[user_id]
         for user_id in adminlist:
-            bot.send_message(
+            context.bot.send_message(
                 chat_id=user_id, text="*Message to Camp Comm from {}:*\n{}".format(sender_name, message), parse_mode=telegram.ParseMode.MARKDOWN)
         update.message.reply_text(
             "_Message sent to Camp Comm!_", parse_mode=telegram.ParseMode.MARKDOWN)
@@ -332,9 +332,9 @@ def selectcamper(update, context):
 
 
 def sendtext(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text=update.message.text)
     update.message.reply_text(
         "_Message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -342,7 +342,7 @@ def sendtext(update, context):
 
 
 def sendphoto(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New photo from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_photo(
         chat_id=context.user_data['recipient'], photo=update.message.photo[-1], caption=update.message.caption)
@@ -352,7 +352,7 @@ def sendphoto(update, context):
 
 
 def sendaudio(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New audio from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_audio(
         chat_id=context.user_data['recipient'], audio=update.message.audio)
@@ -362,7 +362,7 @@ def sendaudio(update, context):
 
 
 def senddocument(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New document from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_document(
         chat_id=context.user_data['recipient'], document=update.message.document)
@@ -372,7 +372,7 @@ def senddocument(update, context):
 
 
 def sendvideo(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_video(
         chat_id=context.user_data['recipient'], video=update.message.video)
@@ -382,7 +382,7 @@ def sendvideo(update, context):
 
 
 def sendanimation(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New animation from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_animation(
         chat_id=context.user_data['recipient'], animation=update.message.animation)
@@ -392,7 +392,7 @@ def sendanimation(update, context):
 
 
 def sendvoice(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New voice message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_voice(
         chat_id=context.user_data['recipient'], voice=update.message.voice)
@@ -402,7 +402,7 @@ def sendvoice(update, context):
 
 
 def sendvideonote(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_video_note(
         chat_id=context.user_data['recipient'], video_note=update.message.video_note)
@@ -412,7 +412,7 @@ def sendvideonote(update, context):
 
 
 def sendsticker(update, context):
-    bot.send_message(
+    context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New sticker from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
     bot.send_sticker(
         chat_id=context.user_data['recipient'], sticker=update.message.sticker)
