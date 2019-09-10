@@ -15,6 +15,63 @@ logger = logging.getLogger(__name__)
 TARGET, CONTENT = range(2)
 
 
+def get_users():
+    global userdict
+    with open('users.txt', 'a+') as userfile:
+        userdict = {}
+    with open('users.txt', 'r') as userfile:
+        for line in userfile:
+            line = line.strip('\n')
+            line = line.split(',')
+            userdict[int(line[0])] = line[1]
+
+
+def get_usernames():
+    global usernamedict
+    with open('usernames.txt', 'a+') as usernamefile:
+        usernamedict = {}
+    with open('usernames.txt', 'r') as usernamefile:
+        for line in usernamefile:
+            line = line.strip('\n')
+            line = line.split(',')
+            usernamedict[line[0]] = int(line[1])
+
+
+def get_admin():
+    global adminlist
+    with open('admin.txt', 'a+') as adminfile:
+        adminlist = []
+    with open('admin.txt', 'r') as adminfile:
+        for line in adminfile:
+            line = line.strip('\n')
+            adminlist.append(int(line))
+
+
+def get_gamelist():
+    global mymortal
+    global myangel
+    with open('mymortal.txt', 'a+') as mortalfile:
+        mymortal = {}
+    with open('myangel.txt', 'a+') as angelfile:
+        myangel = {}
+    with open('mymortal.txt', 'r') as mortalfile:
+        for line in mortalfile:
+            line = line.strip('\n')
+            line = line.split(',')
+            mymortal[int(line[0])] = int(line[1])
+    with open('myangel.txt', 'r') as angelfile:
+        for line in angelfile:
+            line = line.strip('\n')
+            line = line.split(',')
+            myangel[int(line[0])] = int(line[1])
+
+
+def parse(text, length):
+    start = int(length) + 2
+    message = text[start:]
+    return message
+
+
 def adminonly(func):
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
@@ -371,63 +428,6 @@ def exit(update, context):
     return ConversationHandler.END
 
 
-def get_users():
-    global userdict
-    with open('users.txt', 'a+') as userfile:
-        userdict = {}
-    with open('users.txt', 'r') as userfile:
-        for line in userfile:
-            line = line.strip('\n')
-            line = line.split(',')
-            userdict[int(line[0])] = line[1]
-
-
-def get_usernames():
-    global usernamedict
-    with open('usernames.txt', 'a+') as usernamefile:
-        usernamedict = {}
-    with open('usernames.txt', 'r') as usernamefile:
-        for line in usernamefile:
-            line = line.strip('\n')
-            line = line.split(',')
-            usernamedict[line[0]] = int(line[1])
-
-
-def get_admin():
-    global adminlist
-    with open('admin.txt', 'a+') as adminfile:
-        adminlist = []
-    with open('admin.txt', 'r') as adminfile:
-        for line in adminfile:
-            line = line.strip('\n')
-            adminlist.append(int(line))
-
-
-def get_gamelist():
-    global mymortal
-    global myangel
-    with open('mymortal.txt', 'a+') as mortalfile:
-        mymortal = {}
-    with open('myangel.txt', 'a+') as angelfile:
-        myangel = {}
-    with open('mymortal.txt', 'r') as mortalfile:
-        for line in mortalfile:
-            line = line.strip('\n')
-            line = line.split(',')
-            mymortal[int(line[0])] = int(line[1])
-    with open('myangel.txt', 'r') as angelfile:
-        for line in angelfile:
-            line = line.strip('\n')
-            line = line.split(',')
-            myangel[int(line[0])] = int(line[1])
-
-
-def parse(text, length):
-    start = int(length) + 2
-    message = text[start:]
-    return message
-
-
 @adminonly
 def reset(update, context):
     get_users()
@@ -440,7 +440,7 @@ def reset(update, context):
 
 def main():
     updater = Updater(
-        token=bottoken, use_context=True)
+        token=bottoken, workers=32, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
