@@ -1,18 +1,34 @@
-import telegram
-from telegram.ext import (Updater, CommandHandler,
-                          MessageHandler, Filters, ConversationHandler)
+import telegram.bot
+from telegram.ext import (Updater, CommandHandler, MessageHandler,
+                          Filters, ConversationHandler, MessageQueue as mq)
 import logging
 from functools import wraps
 import random
 from cred import bottoken, adminpass
-
-bot = telegram.Bot(token=bottoken)
 
 logging.basicConfig(filename='debug.log', filemode='a+', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 TARGET, CONTENT = range(2)
+
+
+class MQBot(telegram.bot.Bot):
+    def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
+        super(MQBot, self).__init__(*args, **kwargs)
+        self._is_messages_queued_default = is_queued_def
+        self._msg_queue = mqueue or mq.MessageQueue()
+
+    def __del__(self):
+        try:
+            self._msg_queue.stop()
+        except:
+            pass
+        super(MQBot, self).__del__()
+
+    @mq.queuedmessage
+    def send_message(self, *args, **kwargs):
+        return super(MQBot, self).send_message(*args, **kwargs)
 
 
 def get_users():
@@ -344,7 +360,7 @@ def sendtext(update, context):
 def sendphoto(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New photo from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_photo(
+    context.bot.send_photo(
         chat_id=context.user_data['recipient'], photo=update.message.photo[-1], caption=update.message.caption)
     update.message.reply_text(
         "_Photo sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -354,7 +370,7 @@ def sendphoto(update, context):
 def sendaudio(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New audio from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_audio(
+    context.bot.send_audio(
         chat_id=context.user_data['recipient'], audio=update.message.audio)
     update.message.reply_text(
         "_Audio sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -364,7 +380,7 @@ def sendaudio(update, context):
 def senddocument(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New document from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_document(
+    context.bot.send_document(
         chat_id=context.user_data['recipient'], document=update.message.document)
     update.message.reply_text(
         "_Document sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -374,7 +390,7 @@ def senddocument(update, context):
 def sendvideo(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_video(
+    context.bot.send_video(
         chat_id=context.user_data['recipient'], video=update.message.video)
     update.message.reply_text(
         "_Video sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -384,7 +400,7 @@ def sendvideo(update, context):
 def sendanimation(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New animation from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_animation(
+    context.bot.send_animation(
         chat_id=context.user_data['recipient'], animation=update.message.animation)
     update.message.reply_text(
         "_Animation sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -394,7 +410,7 @@ def sendanimation(update, context):
 def sendvoice(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New voice message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_voice(
+    context.bot.send_voice(
         chat_id=context.user_data['recipient'], voice=update.message.voice)
     update.message.reply_text(
         "_Voice message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -404,7 +420,7 @@ def sendvoice(update, context):
 def sendvideonote(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_video_note(
+    context.bot.send_video_note(
         chat_id=context.user_data['recipient'], video_note=update.message.video_note)
     update.message.reply_text(
         "_Video message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -414,7 +430,7 @@ def sendvideonote(update, context):
 def sendsticker(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New sticker from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
-    bot.send_sticker(
+    context.bot.send_sticker(
         chat_id=context.user_data['recipient'], sticker=update.message.sticker)
     update.message.reply_text(
         "_Sticker sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -439,8 +455,10 @@ def reset(update, context):
 
 
 def main():
+    request = Request(con_pool_size=8)
+    mybot = MQBot(token=bottoken, request=request, mqueue=q)
     updater = Updater(
-        token=bottoken, workers=32, use_context=True)
+        token=bottoken, workers=32, bot=mybot, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
