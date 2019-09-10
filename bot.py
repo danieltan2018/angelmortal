@@ -20,12 +20,12 @@ class MQBot(telegram.bot.Bot):
         self._is_messages_queued_default = is_queued_def
         self._msg_queue = mqueue or mq.MessageQueue()
 
-    def __del__(self):
-        try:
-            self._msg_queue.stop()
-        except:
-            pass
-        super(MQBot, self).__del__()  # Bug
+    # def __del__(self):
+    #     try:
+    #         self._msg_queue.stop()
+    #     except:
+    #         pass
+    #     super(MQBot, self).__del__()
 
     @mq.queuedmessage
     def send_message(self, *args, **kwargs):
