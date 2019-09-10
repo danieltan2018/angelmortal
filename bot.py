@@ -1,6 +1,6 @@
 import telegram.bot
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
-                          Filters, ConversationHandler, MessageQueue as mq)
+                          Filters, ConversationHandler, messagequeue as mq)
 from telegram.utils.request import Request
 import logging
 from functools import wraps
@@ -25,7 +25,7 @@ class MQBot(telegram.bot.Bot):
             self._msg_queue.stop()
         except:
             pass
-        super(MQBot, self).__del__()
+        super(MQBot, self).__del__()  # Bug
 
     @mq.queuedmessage
     def send_message(self, *args, **kwargs):
@@ -455,11 +455,17 @@ def reset(update, context):
         "_Reset complete._", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@adminonly
+def tester(update, context):
+    for i in range(100):
+        update.message.reply_text(
+            "Test {}".format(i))
+
+
 def main():
-    request = Request(con_pool_size=8)
+    request = Request(con_pool_size=36)
     mybot = MQBot(token=bottoken, request=request, mqueue=mq.MessageQueue())
-    updater = Updater(
-        token=bottoken, workers=32, bot=mybot, use_context=True)
+    updater = Updater(workers=32, bot=mybot, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
@@ -505,6 +511,8 @@ def main():
     dispatcher.add_handler(players_handler)
     reset_handler = CommandHandler('reset', reset)
     dispatcher.add_handler(reset_handler)
+    tester_handler = CommandHandler('tester', tester)
+    dispatcher.add_handler(tester_handler)
     unknown_handler = MessageHandler(Filters.command, unknown)
     dispatcher.add_handler(unknown_handler)
     message_handler = MessageHandler(Filters.all, message_err)
@@ -519,7 +527,7 @@ def main():
     print("Bot is running. Press Ctrl+C to stop.")
     print("Please wait for confirmation before closing.")
     updater.idle()
-    print("Bot stopped successfully.")
+    print("Bot updater stopped. Message queue may still be running.")
 
 
 if __name__ == '__main__':
