@@ -175,6 +175,7 @@ def newgame(update, context):
         msg = "Your mortal is: *{mortal}*\nUse /message to talk to them.".format(
             mortal=mortal_name)
         flood(context, address, msg)
+        time.sleep(0.05)
     update.message.reply_text("Game started!")
 
 
@@ -212,6 +213,7 @@ def endgame(update, context):
         address = user_id
         msg = "Your angel was: *{angel}*".format(angel=angel_name)
         flood(context, address, msg)
+        time.sleep(0.05)
     update.message.reply_text("Game stopped!")
 
 
@@ -226,6 +228,7 @@ def broadcast(update, context):
             address = user_id
             msg = "*BROADCAST FROM YF CAMP COMM:*\n{}".format(message)
             flood(context, address, msg)
+            time.sleep(0.05)
         update.message.reply_text(
             "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -244,13 +247,13 @@ def cc(update, context):
             msg = "*Message to Camp Comm from {}:*\n{}".format(
                 sender_name, message)
             flood(context, address, msg)
+            time.sleep(0.05)
         update.message.reply_text(
             "_Message sent to Camp Comm!_", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @run_async
 def flood(context, address, msg):
-    time.sleep(1)
     context.bot.send_message(chat_id=address, text=msg,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
