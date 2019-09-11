@@ -453,7 +453,7 @@ def tester(update, context):
 
 
 def main():
-    updater = Updater(token=bottoken, workers=32, use_context=True)
+    updater = Updater(token=bottoken, workers=16, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
