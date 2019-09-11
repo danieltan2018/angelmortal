@@ -6,6 +6,7 @@ from telegram.utils.request import Request
 import logging
 from functools import wraps
 import random
+import time
 from cred import bottoken, adminpass
 
 logging.basicConfig(filename='debug.log', filemode='a+', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -170,8 +171,10 @@ def newgame(update, context):
     for user_id in mymortal:
         mortal_id = mymortal[user_id]
         mortal_name = userdict[mortal_id]
-        context.bot.send_message(
-            chat_id=user_id, text="Your mortal is: *{mortal}*\nUse /message to talk to them.".format(mortal=mortal_name), parse_mode=telegram.ParseMode.MARKDOWN)
+        address = user_id
+        msg = "Your mortal is: *{mortal}*\nUse /message to talk to them.".format(
+            mortal=mortal_name)
+        flood(context, address, msg)
     update.message.reply_text("Game started!")
 
 
@@ -206,8 +209,9 @@ def endgame(update, context):
     for user_id in myangel:
         angel_id = myangel[user_id]
         angel_name = userdict[angel_id]
-        context.bot.send_message(
-            chat_id=user_id, text="Your angel was: *{angel}*".format(angel=angel_name), parse_mode=telegram.ParseMode.MARKDOWN)
+        address = user_id
+        msg = "Your angel was: *{angel}*".format(angel=angel_name)
+        flood(context, address, msg)
     update.message.reply_text("Game stopped!")
 
 
@@ -219,8 +223,9 @@ def broadcast(update, context):
             "_Type your message after the command\ne.g._ /broadcast Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         for user_id in userdict:
-            context.bot.send_message(
-                chat_id=user_id, text="*BROADCAST FROM YF CAMP COMM:*\n{}".format(message), parse_mode=telegram.ParseMode.MARKDOWN)
+            address = user_id
+            msg = "*BROADCAST FROM YF CAMP COMM:*\n{}".format(message)
+            flood(context, address, msg)
         update.message.reply_text(
             "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -235,10 +240,19 @@ def cc(update, context):
         user_id = update.message.from_user.id
         sender_name = userdict[user_id]
         for user_id in adminlist:
-            context.bot.send_message(
-                chat_id=user_id, text="*Message to Camp Comm from {}:*\n{}".format(sender_name, message), parse_mode=telegram.ParseMode.MARKDOWN)
+            address = user_id
+            msg = "*Message to Camp Comm from {}:*\n{}".format(
+                sender_name, message)
+            flood(context, address, msg)
         update.message.reply_text(
             "_Message sent to Camp Comm!_", parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+@run_async
+def flood(context, address, msg):
+    time.sleep(1)
+    context.bot.send_message(chat_id=address, text=msg,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @adminonly
@@ -446,7 +460,7 @@ def tester(update, context):
 
 
 def main():
-    updater = Updater(token=bottoken, workers=16, use_context=True)
+    updater = Updater(token=bottoken, workers=20, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
