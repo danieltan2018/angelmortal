@@ -1,6 +1,7 @@
 import telegram.bot
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
-                          Filters, ConversationHandler, messagequeue as mq)
+                          Filters, ConversationHandler)
+from telegram.ext.dispatcher import run_async
 from telegram.utils.request import Request
 import logging
 from functools import wraps
@@ -12,24 +13,6 @@ logging.basicConfig(filename='debug.log', filemode='a+', format='%(asctime)s - %
 logger = logging.getLogger(__name__)
 
 TARGET, CONTENT = range(2)
-
-
-class MQBot(telegram.bot.Bot):
-    def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
-        super(MQBot, self).__init__(*args, **kwargs)
-        self._is_messages_queued_default = is_queued_def
-        self._msg_queue = mqueue or mq.MessageQueue()
-
-    # def __del__(self):
-    #     try:
-    #         self._msg_queue.stop()
-    #     except:
-    #         pass
-    #     super(MQBot, self).__del__()
-
-    @mq.queuedmessage
-    def send_message(self, *args, **kwargs):
-        return super(MQBot, self).send_message(*args, **kwargs)
 
 
 def get_users():
@@ -348,6 +331,7 @@ def selectcamper(update, context):
         return CONTENT
 
 
+@run_async
 def sendtext(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -358,6 +342,7 @@ def sendtext(update, context):
     return CONTENT
 
 
+@run_async
 def sendphoto(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New photo from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -368,6 +353,7 @@ def sendphoto(update, context):
     return CONTENT
 
 
+@run_async
 def sendaudio(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New audio from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -378,6 +364,7 @@ def sendaudio(update, context):
     return CONTENT
 
 
+@run_async
 def senddocument(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New document from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -388,6 +375,7 @@ def senddocument(update, context):
     return CONTENT
 
 
+@run_async
 def sendvideo(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -398,6 +386,7 @@ def sendvideo(update, context):
     return CONTENT
 
 
+@run_async
 def sendanimation(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New animation from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -408,6 +397,7 @@ def sendanimation(update, context):
     return CONTENT
 
 
+@run_async
 def sendvoice(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New voice message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -418,6 +408,7 @@ def sendvoice(update, context):
     return CONTENT
 
 
+@run_async
 def sendvideonote(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -428,6 +419,7 @@ def sendvideonote(update, context):
     return CONTENT
 
 
+@run_async
 def sendsticker(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New sticker from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -457,15 +449,11 @@ def reset(update, context):
 
 @adminonly
 def tester(update, context):
-    for i in range(100):
-        update.message.reply_text(
-            "Test {}".format(i))
+    pass
 
 
 def main():
-    request = Request(con_pool_size=8)
-    mybot = MQBot(token=bottoken, request=request, mqueue=mq.MessageQueue())
-    updater = Updater(workers=8, bot=mybot, use_context=True)
+    updater = Updater(token=bottoken, workers=32, use_context=True)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
@@ -527,7 +515,7 @@ def main():
     print("Bot is running. Press Ctrl+C to stop.")
     print("Please wait for confirmation before closing.")
     updater.idle()
-    print("Bot updater stopped. Message queue may still be running.")
+    print("Bot stopped successfully.")
 
 
 if __name__ == '__main__':
