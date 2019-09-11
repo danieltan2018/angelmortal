@@ -96,11 +96,13 @@ def useronly(func):
     return wrapped
 
 
+@run_async
 def start(update, context):
     update.message.reply_text(
         "*Welcome to YF Camp 2019!*\nPress /join to enter the Angel & Mortal bot.", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@run_async
 def unknown(update, context):
     commands = '''
 *COMMANDS*
@@ -331,7 +333,6 @@ def selectcamper(update, context):
         return CONTENT
 
 
-@run_async
 def sendtext(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -342,7 +343,6 @@ def sendtext(update, context):
     return CONTENT
 
 
-@run_async
 def sendphoto(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New photo from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -353,7 +353,6 @@ def sendphoto(update, context):
     return CONTENT
 
 
-@run_async
 def sendaudio(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New audio from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -364,7 +363,6 @@ def sendaudio(update, context):
     return CONTENT
 
 
-@run_async
 def senddocument(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New document from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -375,7 +373,6 @@ def senddocument(update, context):
     return CONTENT
 
 
-@run_async
 def sendvideo(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -386,7 +383,6 @@ def sendvideo(update, context):
     return CONTENT
 
 
-@run_async
 def sendanimation(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New animation from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -397,7 +393,6 @@ def sendanimation(update, context):
     return CONTENT
 
 
-@run_async
 def sendvoice(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New voice message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -408,7 +403,6 @@ def sendvoice(update, context):
     return CONTENT
 
 
-@run_async
 def sendvideonote(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New video message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
@@ -419,7 +413,6 @@ def sendvideonote(update, context):
     return CONTENT
 
 
-@run_async
 def sendsticker(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text="_New sticker from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
