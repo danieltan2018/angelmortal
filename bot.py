@@ -117,6 +117,7 @@ def unknown(update, context):
 /broadcast - Send to all campers
 /players - List of all players
 /reset - Reloads lists from file
+/tester - Do not touch!
     '''
     update.message.reply_text(commands, parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -512,7 +513,7 @@ def tester(update, context):
     user_id = update.effective_user.id
     mymortal[user_id] = user_id
     myangel[user_id] = user_id
-    update.message.reply_text("Set myself as my angel/mortal.")
+    update.message.reply_text("You are now set as your own angel/mortal. /reset to undo.")
 
 
 def main():
