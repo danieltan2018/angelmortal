@@ -506,7 +506,9 @@ def reset(update, context):
 
 @adminonly
 def tester(update, context):
-    pass
+    user_id = update.effective_user.id
+    my_mortal[user_id] = user_id
+    my_angel[user_id] = user_id
 
 
 def main():
