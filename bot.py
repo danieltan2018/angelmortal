@@ -293,7 +293,6 @@ def message_choice(update):
                               reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
 
 
-
 @useronly
 def message(update, context):
     user_id = update.message.from_user.id
@@ -353,6 +352,7 @@ def selectcamper(update, context):
     if user_name not in usernamedict:
         responder(update, "*Username not found.*")
         context.user_data.clear()
+        time.sleep(0.05)
         responder(
             update, "*Exited messaging mode.*\nType /message again to send a message.")
         return ConversationHandler.END
@@ -380,8 +380,9 @@ def message_in(update, context, msgtype):
 
 def sendtext(update, context):
     message_out(update, context, 'message')
-    time.sleep(0.1)
+    time.sleep(0.05)
     text_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Message')
     return CONTENT
 
@@ -394,8 +395,9 @@ def text_out(update, context):
 
 def sendphoto(update, context):
     message_out(update, context, 'photo')
-    time.sleep(0.1)
+    time.sleep(0.05)
     photo_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Photo')
     return CONTENT
 
@@ -408,8 +410,9 @@ def photo_out(update, context):
 
 def sendaudio(update, context):
     message_out(update, context, 'audio')
-    time.sleep(0.1)
+    time.sleep(0.05)
     audio_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Audio')
     return CONTENT
 
@@ -422,8 +425,9 @@ def audio_out(update, context):
 
 def senddocument(update, context):
     message_out(update, context, 'document')
-    time.sleep(0.1)
+    time.sleep(0.05)
     document_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Document')
     return CONTENT
 
@@ -436,8 +440,9 @@ def document_out(update, context):
 
 def sendvideo(update, context):
     message_out(update, context, 'video')
-    time.sleep(0.1)
+    time.sleep(0.05)
     video_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Video')
     return CONTENT
 
@@ -450,8 +455,9 @@ def video_out(update, context):
 
 def sendanimation(update, context):
     message_out(update, context, 'animation')
-    time.sleep(0.1)
+    time.sleep(0.05)
     animation_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Animation')
     return CONTENT
 
@@ -464,8 +470,9 @@ def animation_out(update, context):
 
 def sendvoice(update, context):
     message_out(update, context, 'voice')
-    time.sleep(0.1)
+    time.sleep(0.05)
     voice_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Voice')
     return CONTENT
 
@@ -478,8 +485,9 @@ def voice_out(update, context):
 
 def sendvideonote(update, context):
     message_out(update, context, 'video message')
-    time.sleep(0.1)
+    time.sleep(0.05)
     videonote_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Video message')
     return CONTENT
 
@@ -492,8 +500,9 @@ def videonote_out(update, context):
 
 def sendsticker(update, context):
     message_out(update, context, 'sticker')
-    time.sleep(0.1)
+    time.sleep(0.05)
     sticker_out(update, context)
+    time.sleep(0.05)
     message_in(update, context, 'Sticker')
     return CONTENT
 
