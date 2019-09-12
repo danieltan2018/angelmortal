@@ -291,7 +291,7 @@ def message_err(update, context):
 def message_choice(update):
     update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.", parse_mode=telegram.ParseMode.MARKDOWN,
                               reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
-    return TARGET
+
 
 
 @useronly
@@ -306,6 +306,7 @@ def message(update, context):
         context.user_data['mortal'] = mortal_id
         context.user_data['angel'] = angel_id
         message_choice(update)
+    return TARGET
 
 
 def invalid(update, context):
@@ -318,6 +319,7 @@ def invalid(update, context):
         return ConversationHandler.END
     else:
         message_choice(update)
+    return TARGET
 
 
 def selectmortal(update, context):
