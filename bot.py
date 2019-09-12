@@ -376,7 +376,6 @@ def sendtext(update, context):
     message_out(update, context, 'message')
     text_out(update, context)
     message_in(update, context, 'Message')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -390,7 +389,6 @@ def sendphoto(update, context):
     message_out(update, context, 'photo')
     photo_out(update, context)
     message_in(update, context, 'Photo')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -404,7 +402,6 @@ def sendaudio(update, context):
     message_out(update, context, 'audio')
     audio_out(update, context)
     message_in(update, context, 'Audio')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -418,7 +415,6 @@ def senddocument(update, context):
     message_out(update, context, 'document')
     document_out(update, context)
     message_in(update, context, 'Document')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -432,7 +428,6 @@ def sendvideo(update, context):
     message_out(update, context, 'video')
     video_out(update, context)
     message_in(update, context, 'Video')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -446,7 +441,6 @@ def sendanimation(update, context):
     message_out(update, context, 'animation')
     animation_out(update, context)
     message_in(update, context, 'Animation')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -460,7 +454,6 @@ def sendvoice(update, context):
     message_out(update, context, 'voice')
     voice_out(update, context)
     message_in(update, context, 'Voice')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -474,7 +467,6 @@ def sendvideonote(update, context):
     message_out(update, context, 'video message')
     videonote_out(update, context)
     message_in(update, context, 'Video message')
-    time.sleep(0.1)
     return CONTENT
 
 
@@ -488,7 +480,6 @@ def sendsticker(update, context):
     message_out(update, context, 'sticker')
     sticker_out(update, context)
     message_out(update, context, 'Sticker')
-    time.sleep(0.1)
     return CONTENT
 
 
