@@ -123,8 +123,8 @@ def unknown(update, context):
 
 
 def join(update, context):
-    context.bot.send_chat_action(chat_id=update.message.chat_id,
-                                 action=telegram.ChatAction.TYPING)
+    context.bot.send_chat_action(
+        chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     user_id = update.message.from_user.id
     if user_id in userdict:
         update.message.reply_text(
@@ -263,8 +263,8 @@ def flood(context, address, msg):
 
 @adminonly
 def players(update, context):
-    context.bot.send_chat_action(chat_id=update.message.chat_id,
-                                 action=telegram.ChatAction.TYPING)
+    context.bot.send_chat_action(
+        chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     count = 1
     playerlist = "*Players:*\n"
     for playername in userdict.values():
@@ -322,8 +322,8 @@ def selectmortal(update, context):
     context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
     responder(update, "I will send your messages (anonymously) to *{}* until you type /exit.".format(
         context.user_data['recipient_name']))
-    context.bot.send_chat_action(chat_id=context.user_data['recipient'],
-                                 action=telegram.ChatAction.TYPING)
+    context.bot.send_chat_action(
+        chat_id=context.user_data['recipient'], action=telegram.ChatAction.TYPING)
     return CONTENT
 
 
@@ -335,8 +335,8 @@ def selectangel(update, context):
     context.user_data['recipient_name'] = 'Your Angel'
     responder(
         update, "I will send your messages (with your name) to *Your Angel* until you type /exit.")
-    context.bot.send_chat_action(chat_id=context.user_data['recipient'],
-                                 action=telegram.ChatAction.TYPING)
+    context.bot.send_chat_action(
+        chat_id=context.user_data['recipient'], action=telegram.ChatAction.TYPING)
     return CONTENT
 
 
@@ -376,7 +376,7 @@ def sendtext(update, context):
     message_out(update, context, 'message')
     text_out(update, context)
     message_in(update, context, 'Message')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -390,7 +390,7 @@ def sendphoto(update, context):
     message_out(update, context, 'photo')
     photo_out(update, context)
     message_in(update, context, 'Photo')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -404,7 +404,7 @@ def sendaudio(update, context):
     message_out(update, context, 'audio')
     audio_out(update, context)
     message_in(update, context, 'Audio')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -418,7 +418,7 @@ def senddocument(update, context):
     message_out(update, context, 'document')
     document_out(update, context)
     message_in(update, context, 'Document')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -432,7 +432,7 @@ def sendvideo(update, context):
     message_out(update, context, 'video')
     video_out(update, context)
     message_in(update, context, 'Video')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -446,7 +446,7 @@ def sendanimation(update, context):
     message_out(update, context, 'animation')
     animation_out(update, context)
     message_in(update, context, 'Animation')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -460,7 +460,7 @@ def sendvoice(update, context):
     message_out(update, context, 'voice')
     voice_out(update, context)
     message_in(update, context, 'Voice')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -474,7 +474,7 @@ def sendvideonote(update, context):
     message_out(update, context, 'video message')
     videonote_out(update, context)
     message_in(update, context, 'Video message')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
@@ -488,7 +488,7 @@ def sendsticker(update, context):
     message_out(update, context, 'sticker')
     sticker_out(update, context)
     message_out(update, context, 'Sticker')
-    time.sleep(0.05)
+    time.sleep(0.1)
     return CONTENT
 
 
