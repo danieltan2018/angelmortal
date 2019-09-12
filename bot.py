@@ -164,6 +164,9 @@ def yfcampcomm(update, context):
 @adminonly
 def newgame(update, context):
     update.message.reply_text("Randomising angels & mortals...")
+    if len(userdict) < 2:
+        update.message.reply_text("Error! Only 1 player.")
+        return None
     do_pairings()
     get_gamelist()
     update.message.reply_text("Sending everyone their mortal's names...")
@@ -509,6 +512,7 @@ def tester(update, context):
     user_id = update.effective_user.id
     mymortal[user_id] = user_id
     myangel[user_id] = user_id
+    update.message.reply_text("Set myself as my angel/mortal.")
 
 
 def main():
