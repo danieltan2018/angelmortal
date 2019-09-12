@@ -163,12 +163,14 @@ def yfcampcomm(update, context):
 @adminonly
 def newgame(update, context):
     responder(update, "_Randomising angels & mortals..._")
+    time.sleep(0.05)
     if len(userdict) < 2:
         responder(update, "_Error! Only 1 player._")
         return
     do_pairings()
     get_gamelist()
     responder(update, "_Sending everyone their mortal's names..._")
+    time.sleep(0.05)
     for user_id in mymortal:
         mortal_id = mymortal[user_id]
         mortal_name = userdict[mortal_id]
@@ -208,6 +210,7 @@ def do_pairings():
 @adminonly
 def endgame(update, context):
     responder(update, "_Revealing angels & mortals..._")
+    time.sleep(0.05)
     for user_id in myangel:
         angel_id = myangel[user_id]
         angel_name = userdict[angel_id]
@@ -225,6 +228,8 @@ def broadcast(update, context):
         responder(
             update, "_Type your message after the command\ne.g._ /broadcast Hello.")
     else:
+        responder(update, "_Sending..._")
+        time.sleep(0.05)
         for user_id in userdict:
             address = user_id
             msg = "*BROADCAST FROM YF CAMP COMM:*\n{}".format(message)
@@ -239,6 +244,8 @@ def cc(update, context):
     if len(message) < 1:
         responder(update, "_Type your message after the command\ne.g._ /cc Hello.")
     else:
+        responder(update, "_Sending..._")
+        time.sleep(0.05)
         user_id = update.message.from_user.id
         sender_name = userdict[user_id]
         for user_id in adminlist:
