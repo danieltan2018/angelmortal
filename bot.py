@@ -77,8 +77,7 @@ def adminonly(func):
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
         if user_id not in adminlist:
-            context.bot.send_message(
-                chat_id=user_id, text="*CAMP COMM ONLY*\nYou shall not pass!", parse_mode=telegram.ParseMode.MARKDOWN)
+            flood(context, user_id, "*CAMP COMM ONLY*\nYou shall not pass!")
             return
         return func(update, context, *args, **kwargs)
     return wrapped
@@ -89,8 +88,7 @@ def useronly(func):
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
         if user_id not in userdict:
-            context.bot.send_message(
-                chat_id=user_id, text="Please /join first.")
+            flood(context, user_id, "Please /join first.")
             return
         return func(update, context, *args, **kwargs)
     return wrapped
@@ -127,8 +125,8 @@ def join(update, context):
         chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     user_id = update.message.from_user.id
     if user_id in userdict:
-        update.message.reply_text(
-            "You are already in the list.\nPress /help for info on commands.")
+        responder(
+            update, "You are already in the list.\nPress /help for info on commands.")
     else:
         user_first = update.message.from_user.first_name
         user_last = update.message.from_user.last_name
@@ -142,35 +140,35 @@ def join(update, context):
             with open('usernames.txt', 'a+') as usernamefile:
                 usernamefile.write("{},{}\n".format(user_name, user_id))
             usernamedict[user_name] = user_id
-        update.message.reply_text(
-            "Your name has been added to the list.\nPress /help for info on commands.")
+        responder(
+            update, "Your name has been added to the list.\nPress /help for info on commands.")
 
 
 @useronly
 def yfcampcomm(update, context):
     user_id = update.message.from_user.id
     if user_id in adminlist:
-        update.message.reply_text("You are already an admin!")
+        responder(update, "`You are already an admin!`")
     else:
         message = parse(update.message.text, len("yfcampcomm"))
         if message == adminpass:
             with open('admin.txt', 'a+') as adminfile:
                 adminfile.write("{}\n".format(user_id))
                 adminlist.append(user_id)
-            update.message.reply_text("You are now an admin!")
+            responder(update, "`You are now an admin!`")
         else:
-            update.message.reply_text("Nope.")
+            responder(update, "`Nope.`")
 
 
 @adminonly
 def newgame(update, context):
-    update.message.reply_text("Randomising angels & mortals...")
+    responder(update, "_Randomising angels & mortals..._")
     if len(userdict) < 2:
-        update.message.reply_text("Error! Only 1 player.")
-        return None
+        responder(update, "_Error! Only 1 player._")
+        return
     do_pairings()
     get_gamelist()
-    update.message.reply_text("Sending everyone their mortal's names...")
+    responder(update, "_Sending everyone their mortal's names..._")
     for user_id in mymortal:
         mortal_id = mymortal[user_id]
         mortal_name = userdict[mortal_id]
@@ -179,7 +177,7 @@ def newgame(update, context):
             mortal=mortal_name)
         flood(context, address, msg)
         time.sleep(0.05)
-    update.message.reply_text("Game started!")
+    responder(update, "_Game started!_")
 
 
 def shuffle():
@@ -209,7 +207,7 @@ def do_pairings():
 
 @adminonly
 def endgame(update, context):
-    update.message.reply_text("Revealing angels & mortals...")
+    responder(update, "_Revealing angels & mortals..._")
     for user_id in myangel:
         angel_id = myangel[user_id]
         angel_name = userdict[angel_id]
@@ -217,31 +215,29 @@ def endgame(update, context):
         msg = "Your angel was: *{angel}*".format(angel=angel_name)
         flood(context, address, msg)
         time.sleep(0.05)
-    update.message.reply_text("Game stopped!")
+    responder(update, "_Game stopped!_")
 
 
 @adminonly
 def broadcast(update, context):
     message = parse(update.message.text, len("broadcast"))
     if len(message) < 1:
-        update.message.reply_text(
-            "_Type your message after the command\ne.g._ /broadcast Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
+        responder(
+            update, "_Type your message after the command\ne.g._ /broadcast Hello.")
     else:
         for user_id in userdict:
             address = user_id
             msg = "*BROADCAST FROM YF CAMP COMM:*\n{}".format(message)
             flood(context, address, msg)
             time.sleep(0.05)
-        update.message.reply_text(
-            "_Broadcast sent!_", parse_mode=telegram.ParseMode.MARKDOWN)
+        responder(update, "_Broadcast sent!_")
 
 
 @useronly
 def cc(update, context):
     message = parse(update.message.text, len("cc"))
     if len(message) < 1:
-        update.message.reply_text(
-            "_Type your message after the command\ne.g._ /cc Hello.", parse_mode=telegram.ParseMode.MARKDOWN)
+        responder(update, "_Type your message after the command\ne.g._ /cc Hello.")
     else:
         user_id = update.message.from_user.id
         sender_name = userdict[user_id]
@@ -251,14 +247,19 @@ def cc(update, context):
                 sender_name, message)
             flood(context, address, msg)
             time.sleep(0.05)
-        update.message.reply_text(
-            "_Message sent to Camp Comm!_", parse_mode=telegram.ParseMode.MARKDOWN)
+        responder(update, "_Message sent to Camp Comm!_")
 
 
 @run_async
 def flood(context, address, msg):
     context.bot.send_message(chat_id=address, text=msg,
                              parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+@run_async
+def responder(update, msg):
+    update.message.reply_text(msg, parse_mode=telegram.ParseMode.MARKDOWN,
+                              reply_markup=telegram.ReplyKeyboardRemove())
 
 
 @adminonly
@@ -270,14 +271,20 @@ def players(update, context):
     for playername in userdict.values():
         playerlist += "{}. {}\n".format(count, playername)
         count += 1
-    update.message.reply_text(
-        playerlist, parse_mode=telegram.ParseMode.MARKDOWN)
+    responder(update, playerlist)
 
 
 @useronly
 def message_err(update, context):
     responder(
         update, "Are you trying to send a message to your angel or mortal? Type /message first.")
+
+
+@run_async
+def message_choice(update):
+    update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.", parse_mode=telegram.ParseMode.MARKDOWN,
+                              reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
+    return TARGET
 
 
 @useronly
@@ -291,15 +298,7 @@ def message(update, context):
     else:
         context.user_data['mortal'] = mortal_id
         context.user_data['angel'] = angel_id
-        update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.",
-                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
-        return TARGET
-
-
-@run_async
-def responder(update, msg):
-    update.message.reply_text(msg, parse_mode=telegram.ParseMode.MARKDOWN,
-                              reply_markup=telegram.ReplyKeyboardRemove())
+        message_choice(update)
 
 
 def invalid(update, context):
@@ -311,9 +310,7 @@ def invalid(update, context):
             update, "*Exited messaging mode.*\nType /message again to send a message.")
         return ConversationHandler.END
     else:
-        update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.",
-                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
-        return TARGET
+        message_choice(update)
 
 
 def selectmortal(update, context):
@@ -488,7 +485,7 @@ def sendsticker(update, context):
     message_out(update, context, 'sticker')
     time.sleep(0.1)
     sticker_out(update, context)
-    message_out(update, context, 'Sticker')
+    message_in(update, context, 'Sticker')
     return CONTENT
 
 
@@ -511,8 +508,7 @@ def reset(update, context):
     get_usernames()
     get_admin()
     get_gamelist()
-    update.message.reply_text(
-        "_Reset complete._", parse_mode=telegram.ParseMode.MARKDOWN)
+    responder(update, "_Reset complete._")
 
 
 @adminonly
