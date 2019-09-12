@@ -2,7 +2,6 @@ import telegram.bot
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, ConversationHandler)
 from telegram.ext.dispatcher import run_async
-from telegram.utils.request import Request
 import logging
 from functools import wraps
 import random
@@ -350,94 +349,142 @@ def selectcamper(update, context):
         return CONTENT
 
 
-def sendtext(update, context):
+@run_async
+def message_out(update, context, msgtype):
     context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+        chat_id=context.user_data['recipient'], text="_New {} from_ *{}* _below!_".format(msgtype, context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+@run_async
+def message_in(update, context, msgtype):
+    update.message.reply_text(
+        "_{} sent to_ *{}*_!_".format(msgtype, context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def sendtext(update, context):
+    message_out(update, context, 'message')
+    text_out(update, context)
+    message_in(update, context, 'Message')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def text_out(update, context):
     context.bot.send_message(
         chat_id=context.user_data['recipient'], text=update.message.text)
-    update.message.reply_text(
-        "_Message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendphoto(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New photo from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'photo')
+    photo_out(update, context)
+    message_in(update, context, 'Photo')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def photo_out(update, context):
     context.bot.send_photo(
         chat_id=context.user_data['recipient'], photo=update.message.photo[-1], caption=update.message.caption, parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
-        "_Photo sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendaudio(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New audio from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'audio')
+    audio_out(update, context)
+    message_in(update, context, 'Audio')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def audio_out(update, context):
     context.bot.send_audio(
         chat_id=context.user_data['recipient'], audio=update.message.audio, caption=update.message.caption, parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
-        "_Audio sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def senddocument(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New document from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'document')
+    document_out(update, context)
+    message_in(update, context, 'Document')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def document_out(update, context):
     context.bot.send_document(
         chat_id=context.user_data['recipient'], document=update.message.document, caption=update.message.caption, parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
-        "_Document sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendvideo(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New video from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'video')
+    video_out(update, context)
+    message_in(update, context, 'Video')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def video_out(update, context):
     context.bot.send_video(
         chat_id=context.user_data['recipient'], video=update.message.video, caption=update.message.caption, parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
-        "_Video sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendanimation(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New animation from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'animation')
+    animation_out(update, context)
+    message_in(update, context, 'Animation')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def animation_out(update, context):
     context.bot.send_animation(
         chat_id=context.user_data['recipient'], animation=update.message.animation, caption=update.message.caption, parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
-        "_Animation sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendvoice(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New voice message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'voice')
+    voice_out(update, context)
+    message_in(update, context, 'Voice')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def voice_out(update, context):
     context.bot.send_voice(
         chat_id=context.user_data['recipient'], voice=update.message.voice, caption=update.message.caption, parse_mode=telegram.ParseMode.MARKDOWN)
-    update.message.reply_text(
-        "_Voice message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendvideonote(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New video message from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'video message')
+    videonote_out(update, context)
+    message_in(update, context, 'Video message')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def videonote_out(update, context):
     context.bot.send_video_note(
         chat_id=context.user_data['recipient'], video_note=update.message.video_note)
-    update.message.reply_text(
-        "_Video message sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def sendsticker(update, context):
-    context.bot.send_message(
-        chat_id=context.user_data['recipient'], text="_New sticker from_ *{sender}* _below!_".format(sender=context.user_data['sender']), parse_mode=telegram.ParseMode.MARKDOWN)
+    message_out(update, context, 'sticker')
+    sticker_out(update, context)
+    message_out(update, context, 'Sticker')
+    time.sleep(0.05)
+    return CONTENT
+
+
+@run_async
+def sticker_out(update, context):
     context.bot.send_sticker(
         chat_id=context.user_data['recipient'], sticker=update.message.sticker)
-    update.message.reply_text(
-        "_Sticker sent to_ *{}*_!_".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
-    return CONTENT
 
 
 def exit(update, context):
