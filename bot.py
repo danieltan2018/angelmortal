@@ -374,6 +374,7 @@ def message_in(update, context, msgtype):
 
 def sendtext(update, context):
     message_out(update, context, 'message')
+    time.sleep(0.1)
     text_out(update, context)
     message_in(update, context, 'Message')
     return CONTENT
@@ -382,11 +383,12 @@ def sendtext(update, context):
 @run_async
 def text_out(update, context):
     context.bot.send_message(
-        chat_id=context.user_data['recipient'], text=update.message.text)
+        chat_id=context.user_data['recipient'], text=update.message.text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def sendphoto(update, context):
     message_out(update, context, 'photo')
+    time.sleep(0.1)
     photo_out(update, context)
     message_in(update, context, 'Photo')
     return CONTENT
@@ -400,6 +402,7 @@ def photo_out(update, context):
 
 def sendaudio(update, context):
     message_out(update, context, 'audio')
+    time.sleep(0.1)
     audio_out(update, context)
     message_in(update, context, 'Audio')
     return CONTENT
@@ -413,6 +416,7 @@ def audio_out(update, context):
 
 def senddocument(update, context):
     message_out(update, context, 'document')
+    time.sleep(0.1)
     document_out(update, context)
     message_in(update, context, 'Document')
     return CONTENT
@@ -426,6 +430,7 @@ def document_out(update, context):
 
 def sendvideo(update, context):
     message_out(update, context, 'video')
+    time.sleep(0.1)
     video_out(update, context)
     message_in(update, context, 'Video')
     return CONTENT
@@ -439,6 +444,7 @@ def video_out(update, context):
 
 def sendanimation(update, context):
     message_out(update, context, 'animation')
+    time.sleep(0.1)
     animation_out(update, context)
     message_in(update, context, 'Animation')
     return CONTENT
@@ -452,6 +458,7 @@ def animation_out(update, context):
 
 def sendvoice(update, context):
     message_out(update, context, 'voice')
+    time.sleep(0.1)
     voice_out(update, context)
     message_in(update, context, 'Voice')
     return CONTENT
@@ -465,6 +472,7 @@ def voice_out(update, context):
 
 def sendvideonote(update, context):
     message_out(update, context, 'video message')
+    time.sleep(0.1)
     videonote_out(update, context)
     message_in(update, context, 'Video message')
     return CONTENT
@@ -478,6 +486,7 @@ def videonote_out(update, context):
 
 def sendsticker(update, context):
     message_out(update, context, 'sticker')
+    time.sleep(0.1)
     sticker_out(update, context)
     message_out(update, context, 'Sticker')
     return CONTENT
