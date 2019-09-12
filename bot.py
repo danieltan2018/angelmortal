@@ -276,8 +276,8 @@ def players(update, context):
 
 @useronly
 def message_err(update, context):
-    update.message.reply_text(
-        "Are you trying to send a message to your angel or mortal? Type /message first.")
+    responder(
+        update, "Are you trying to send a message to your angel or mortal? Type /message first.")
 
 
 @useronly
@@ -286,8 +286,7 @@ def message(update, context):
     mortal_id = mymortal.get(user_id)
     angel_id = myangel.get(user_id)
     if (mortal_id == None) or (angel_id == None):
-        update.message.reply_text(
-            "You have not been assigned an angel/mortal.")
+        responder(update, "You have not been assigned an angel/mortal.")
         return ConversationHandler.END
     else:
         context.user_data['mortal'] = mortal_id
@@ -297,13 +296,19 @@ def message(update, context):
         return TARGET
 
 
+@run_async
+def responder(update, msg):
+    update.message.reply_text(msg, parse_mode=telegram.ParseMode.MARKDOWN,
+                              reply_markup=telegram.ReplyKeyboardRemove())
+
+
 def invalid(update, context):
     if 'recipient' in context.user_data:
-        update.message.reply_text(
-            "_Unable to send this message to_ *{}*".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN)
+        responder(
+            update, "_Unable to send this message to_ *{}*".format(context.user_data['recipient_name']))
         context.user_data.clear()
-        update.message.reply_text(
-            "*Exited messaging mode.*\nType /message again to send a message.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+        responder(
+            update, "*Exited messaging mode.*\nType /message again to send a message.")
         return ConversationHandler.END
     else:
         update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.",
@@ -315,8 +320,8 @@ def selectmortal(update, context):
     context.user_data['recipient'] = context.user_data['mortal']
     context.user_data['sender'] = 'Your Angel'
     context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
-    update.message.reply_text(
-        "I will send your messages (anonymously) to *{}* until you type /exit.".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+    responder(update, "I will send your messages (anonymously) to *{}* until you type /exit.".format(
+        context.user_data['recipient_name']))
     context.bot.send_chat_action(chat_id=context.user_data['recipient'],
                                  action=telegram.ChatAction.TYPING)
     return CONTENT
@@ -328,8 +333,8 @@ def selectangel(update, context):
     sender_name = userdict[user_id]
     context.user_data['sender'] = sender_name
     context.user_data['recipient_name'] = 'Your Angel'
-    update.message.reply_text(
-        "I will send your messages (with your name) to *Your Angel* until you type /exit.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+    responder(
+        update, "I will send your messages (with your name) to *Your Angel* until you type /exit.")
     context.bot.send_chat_action(chat_id=context.user_data['recipient'],
                                  action=telegram.ChatAction.TYPING)
     return CONTENT
@@ -340,14 +345,16 @@ def selectcamper(update, context):
     user_name = update.message.text
     user_name = user_name.strip('@')
     if user_name not in usernamedict:
-        update.message.reply_text(
-            "*Username not found.*", parse_mode=telegram.ParseMode.MARKDOWN)
-        return TARGET
+        responder(update, "*Username not found.*")
+        context.user_data.clear()
+        responder(
+            update, "*Exited messaging mode.*\nType /message again to send a message.")
+        return ConversationHandler.END
     else:
         context.user_data['recipient'] = usernamedict[user_name]
         context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
-        update.message.reply_text(
-            "I will send your messages (anonymously) to *{}* until you type /exit.".format(context.user_data['recipient_name']), parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+        responder(update, "I will send your messages (anonymously) to *{}* until you type /exit.".format(
+            context.user_data['recipient_name']))
         context.bot.send_chat_action(
             chat_id=context.user_data['recipient'], action=telegram.ChatAction.TYPING)
         return CONTENT
@@ -493,8 +500,8 @@ def sticker_out(update, context):
 
 def exit(update, context):
     context.user_data.clear()
-    update.message.reply_text(
-        "*Exited messaging mode.*\nType /message again to send a message.", parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardRemove())
+    responder(
+        update, "*Exited messaging mode.*\nType /message again to send a message.")
     return ConversationHandler.END
 
 
@@ -513,7 +520,8 @@ def tester(update, context):
     user_id = update.effective_user.id
     mymortal[user_id] = user_id
     myangel[user_id] = user_id
-    update.message.reply_text("You are now set as your own angel/mortal. /reset to undo.")
+    responder(
+        update, "You are now set as your own angel/mortal.\nUse /reset to undo.")
 
 
 def main():
