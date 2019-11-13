@@ -4,3 +4,4 @@
 *.txt
 cred.py
 .DS_Store
+*.json

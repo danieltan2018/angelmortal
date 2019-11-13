@@ -115,6 +115,7 @@ def unknown(update, context):
 /broadcast - Send to all campers
 /players - List of all players
 /reset - Reloads lists from file
+/who - Check camper's angel
 /tester - Do not touch!
     '''
     update.message.reply_text(commands, parse_mode=telegram.ParseMode.MARKDOWN)
@@ -529,6 +530,32 @@ def reset(update, context):
     responder(update, "_Reset complete._")
 
 
+@useronly
+def who(update, context):
+    global requester
+    try:
+        requester
+    except NameError:
+        requester = None
+    user_id = update.message.from_user.id
+    if requester != None and user_id == requester:
+        responder(update, "_You cannot check your own angel!_")
+    elif requester != None:
+        mortal = user_id
+        mortal = userdict[user_id]
+        angel = myangel[user_id]
+        angel = userdict[angel]
+        responder(
+            update, "Your angel has been revealed to *{}*.".format(userdict[requester]))
+        flood(context, requester, "*{}*'s angel is *{}*.".format(mortal, angel))
+        requester = None
+    elif requester == None and user_id in adminlist:
+        requester = user_id
+        responder(update, "_Type /who on camper's phone to check their angel._")
+    else:
+        responder(update, "`Unable to use this command.`")
+
+
 @adminonly
 def tester(update, context):
     user_id = update.effective_user.id
@@ -585,6 +612,8 @@ def main():
     dispatcher.add_handler(players_handler)
     reset_handler = CommandHandler('reset', reset)
     dispatcher.add_handler(reset_handler)
+    who_handler = CommandHandler('who', who)
+    dispatcher.add_handler(who_handler)
     tester_handler = CommandHandler('tester', tester)
     dispatcher.add_handler(tester_handler)
     unknown_handler = MessageHandler(Filters.command, unknown)
