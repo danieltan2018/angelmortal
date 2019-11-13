@@ -545,9 +545,9 @@ def who(update, context):
         mortal = userdict[user_id]
         angel = myangel[user_id]
         angel = userdict[angel]
+        flood(context, requester, "*{}*'s angel is *{}*.".format(mortal, angel))
         responder(
             update, "Your angel has been revealed to *{}*.".format(userdict[requester]))
-        flood(context, requester, "*{}*'s angel is *{}*.".format(mortal, angel))
         requester = None
     elif requester == None and user_id in adminlist:
         requester = user_id
