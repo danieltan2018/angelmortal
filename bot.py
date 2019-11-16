@@ -180,6 +180,8 @@ def newgame(update, context):
             mortal=mortal_name)
         flood(context, address, msg)
         time.sleep(0.05)
+        sendprofilepic(context, mortal_id, address)
+        time.sleep(0.05)
     responder(update, "_Game started!_")
 
 
@@ -218,6 +220,8 @@ def endgame(update, context):
         address = user_id
         msg = "Your angel was: *{angel}*".format(angel=angel_name)
         flood(context, address, msg)
+        time.sleep(0.05)
+        sendprofilepic(context, angel_id, address)
         time.sleep(0.05)
     responder(update, "_Game stopped!_")
 
@@ -270,13 +274,25 @@ def responder(update, msg):
                               reply_markup=telegram.ReplyKeyboardRemove())
 
 
+@run_async
+def sendprofilepic(context, subject, address):
+    try:
+        profilepic = (context.bot.get_user_profile_photos(
+            subject, limit=1)['photos'][0][-1]['file_id'])
+        context.bot.send_photo(address, profilepic)
+    except:
+        pass
+
+
 @adminonly
 def players(update, context):
     context.bot.send_chat_action(
         chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     count = 1
     playerlist = "*Players:*\n"
-    for playername in userdict.values():
+    for playerid, playername in userdict.items():
+        if playerid in adminlist:
+            playername += " (Admin)"
         playerlist += "{}. {}\n".format(count, playername)
         count += 1
     responder(update, playerlist)
