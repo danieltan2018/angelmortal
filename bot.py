@@ -1,3 +1,4 @@
+# pip install python-telegram-bot
 import telegram.bot
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, ConversationHandler)
@@ -6,7 +7,34 @@ import logging
 from functools import wraps
 import random
 import time
-from cred import bottoken, adminpass
+from cred import bottoken, adminpass, port
+
+# pip install pyopenssl
+from requests import get
+ip = get('https://api.ipify.org').text
+try:
+    certfile = open("cert.pem")
+    keyfile = open("private.key")
+    certfile.close()
+    keyfile.close()
+except IOError:
+    from OpenSSL import crypto
+    key = crypto.PKey()
+    key.generate_key(crypto.TYPE_RSA, 2048)
+    cert = crypto.X509()
+    cert.get_subject().CN = ip
+    cert.set_serial_number(1000)
+    cert.gmtime_adj_notBefore(0)
+    cert.gmtime_adj_notAfter(10*365*24*60*60)
+    cert.set_issuer(cert.get_subject())
+    cert.set_pubkey(key)
+    cert.sign(key, 'sha256')
+    with open("cert.pem", "wt") as certfile:
+        certfile.write(crypto.dump_certificate(
+            crypto.FILETYPE_PEM, cert).decode('ascii'))
+    with open("private.key", "wt") as keyfile:
+        keyfile.write(crypto.dump_privatekey(
+            crypto.FILETYPE_PEM, key).decode('ascii'))
 
 logging.basicConfig(filename='debug.log', filemode='a+', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
@@ -40,11 +68,11 @@ def get_usernames():
 def get_admin():
     global adminlist
     with open('admin.txt', 'a+') as adminfile:
-        adminlist = []
+        adminlist = set()
     with open('admin.txt', 'r') as adminfile:
         for line in adminfile:
             line = line.strip('\n')
-            adminlist.append(int(line))
+            adminlist.add(int(line))
 
 
 def get_gamelist():
@@ -291,9 +319,10 @@ def players(update, context):
     count = 1
     playerlist = "*Players:*\n"
     for playerid, playername in userdict.items():
+        taggedplayer = "[{}](tg://user?id={})".format(playername, playerid)
         if playerid in adminlist:
-            playername += " (Admin)"
-        playerlist += "{}. {}\n".format(count, playername)
+            taggedplayer += " (Admin)"
+        playerlist += "{}. {}\n".format(count, taggedplayer)
         count += 1
     responder(update, playerlist)
 
@@ -642,7 +671,12 @@ def main():
     get_admin()
     get_gamelist()
 
-    updater.start_polling()
+    updater.start_webhook(listen='0.0.0.0',
+                          port=port,
+                          url_path=bottoken,
+                          key='private.key',
+                          cert='cert.pem',
+                          webhook_url='https://{}:{}/{}'.format(ip, port, bottoken))
     print("Bot is running. Press Ctrl+C to stop.")
     print("Please wait for confirmation before closing.")
     updater.idle()
