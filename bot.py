@@ -66,13 +66,13 @@ def get_usernames():
 
 
 def get_admin():
-    global adminlist
+    global adminset
     with open('admin.txt', 'a+') as adminfile:
-        adminlist = set()
+        adminset = set()
     with open('admin.txt', 'r') as adminfile:
         for line in adminfile:
             line = line.strip('\n')
-            adminlist.add(int(line))
+            adminset.add(int(line))
 
 
 def get_gamelist():
@@ -104,7 +104,7 @@ def adminonly(func):
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
-        if user_id not in adminlist:
+        if user_id not in adminset:
             flood(context, user_id, "*CAMP COMM ONLY*\nYou shall not pass!")
             return
         return func(update, context, *args, **kwargs)
@@ -176,14 +176,14 @@ def join(update, context):
 @useronly
 def yfcampcomm(update, context):
     user_id = update.message.from_user.id
-    if user_id in adminlist:
+    if user_id in adminset:
         responder(update, "`You are already an admin!`")
     else:
         message = parse(update.message.text, len("yfcampcomm"))
         if message == adminpass:
             with open('admin.txt', 'a+') as adminfile:
                 adminfile.write("{}\n".format(user_id))
-                adminlist.append(user_id)
+                adminset.add(user_id)
             responder(update, "`You are now an admin!`")
         else:
             responder(update, "`Nope.`")
@@ -281,7 +281,7 @@ def cc(update, context):
         time.sleep(0.05)
         user_id = update.message.from_user.id
         sender_name = userdict[user_id]
-        for user_id in adminlist:
+        for user_id in adminset:
             address = user_id
             msg = "*Message to Camp Comm from {}:*\n{}".format(
                 sender_name, message)
@@ -320,7 +320,7 @@ def players(update, context):
     playerlist = "*Players:*\n"
     for playerid, playername in userdict.items():
         taggedplayer = "[{}](tg://user?id={})".format(playername, playerid)
-        if playerid in adminlist:
+        if playerid in adminset:
             taggedplayer += " (Admin)"
         playerlist += "{}. {}\n".format(count, taggedplayer)
         count += 1
@@ -594,7 +594,7 @@ def who(update, context):
         responder(
             update, "Your angel has been revealed to *{}*.".format(userdict[requester]))
         requester = None
-    elif requester == None and user_id in adminlist:
+    elif requester == None and user_id in adminset:
         requester = user_id
         responder(update, "_Type /who on camper's phone to check their angel._")
     else:
