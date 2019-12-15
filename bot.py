@@ -242,6 +242,7 @@ def do_pairings():
 def endgame(update, context):
     responder(update, "_Revealing angels & mortals..._")
     time.sleep(0.05)
+    compose = '*Game Ended!*\nAngel - Mortal\n\n'
     for user_id in myangel:
         angel_id = myangel[user_id]
         angel_name = userdict[angel_id]
@@ -251,7 +252,12 @@ def endgame(update, context):
         time.sleep(0.05)
         sendprofilepic(context, angel_id, address)
         time.sleep(0.05)
-    responder(update, "_Game stopped!_")
+        user_name = userdict[user_id]
+        compose += "{} - {}\n".format(angel_name, user_name)
+    for user_id in adminset:
+        address = user_id
+        flood(context, address, compose)
+        time.sleep(0.05)
 
 
 @adminonly
