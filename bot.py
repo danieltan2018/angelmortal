@@ -325,7 +325,7 @@ def players(update, context):
         chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     count = 1
     compose = "*Players:*\n"
-    playerlist = sorted(userdict.items(), key=lambda x: x[1])
+    playerlist = sorted(userdict.items(), key=lambda x: x[1].lower())
     for (playerid, playername) in playerlist:
         taggedplayer = "[{}](tg://user?id={})".format(playername, playerid)
         if playerid in adminset:
