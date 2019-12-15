@@ -47,7 +47,7 @@ def get_users():
     global userdict
     with open('users.txt', 'a+') as userfile:
         userdict = {}
-    with open('users.txt', 'r') as userfile:
+    with open('users.txt', 'r', encoding='utf-8') as userfile:
         for line in userfile:
             line = line.strip('\n')
             line = line.split(',')
@@ -317,14 +317,15 @@ def players(update, context):
     context.bot.send_chat_action(
         chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     count = 1
-    playerlist = "*Players:*\n"
-    for playerid, playername in userdict.items():
+    compose = "*Players:*\n"
+    playerlist = sorted(userdict.items(), key=lambda x: x[1])
+    for (playerid, playername) in playerlist:
         taggedplayer = "[{}](tg://user?id={})".format(playername, playerid)
         if playerid in adminset:
-            taggedplayer += " (Admin)"
-        playerlist += "{}. {}\n".format(count, taggedplayer)
+            taggedplayer += " `[Admin]`"
+        compose += "{}. {}\n".format(count, taggedplayer)
         count += 1
-    responder(update, playerlist)
+    responder(update, compose)
 
 
 @useronly
