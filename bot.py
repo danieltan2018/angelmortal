@@ -343,8 +343,8 @@ def message_err(update, context):
 
 @run_async
 def message_choice(update):
-    update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.", parse_mode=telegram.ParseMode.MARKDOWN,
-                              reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
+    update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username. (Messages sent to other campers using their @username are anonymous)\n\n Accepted message types: Text, Sticker, GIF, Photo, Video, Audio, Voice/Video Message, Document",
+                              parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
 
 
 @useronly
