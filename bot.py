@@ -105,7 +105,7 @@ def adminonly(func):
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
         if user_id not in adminset:
-            flood(context, user_id, "*CAMP COMM ONLY*\nYou shall not pass!")
+            flood(context, user_id, "*ADMIN ONLY*\nYou shall not pass!")
             return
         return func(update, context, *args, **kwargs)
     return wrapped
@@ -125,7 +125,7 @@ def useronly(func):
 @run_async
 def start(update, context):
     update.message.reply_text(
-        "*Welcome to YF Camp 2019!*\nPress /join to enter the Angel & Mortal bot.", parse_mode=telegram.ParseMode.MARKDOWN)
+        "*Welcome to the LTF Angel & Mortal Bot!*\nPress /join to enter.", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @run_async
@@ -134,16 +134,16 @@ def unknown(update, context):
 *COMMANDS*
 /join - Join the game
 /message - Send messages
-/cc - Message to Camp Comm
+/cc - Message to admins
 
 *ADMIN COMMANDS*
-/yfcampcomm - Hmm...
+/botadmin - Hmm...
 /newgame - Start game
 /endgame - Stop game
-/broadcast - Send to all campers
+/broadcast - Send to all players
 /players - List of all players
 /reset - Reloads lists from file
-/who - Check camper's angel
+/who - Check player's angel
 /tester - Do not touch!
     '''
     update.message.reply_text(commands, parse_mode=telegram.ParseMode.MARKDOWN)
@@ -174,12 +174,12 @@ def join(update, context):
 
 
 @useronly
-def yfcampcomm(update, context):
+def botadmin(update, context):
     user_id = update.message.from_user.id
     if user_id in adminset:
         responder(update, "`You are already an admin!`")
     else:
-        message = parse(update.message.text, len("yfcampcomm"))
+        message = parse(update.message.text, len("botadmin"))
         if message == adminpass:
             with open('admin.txt', 'a+') as adminfile:
                 adminfile.write("{}\n".format(user_id))
@@ -272,7 +272,7 @@ def broadcast(update, context):
         time.sleep(0.05)
         for user_id in userdict:
             address = user_id
-            msg = "*BROADCAST FROM YF CAMP COMM:*\n{}".format(message)
+            msg = "*BROADCAST FROM ADMINS:*\n{}".format(message)
             flood(context, address, msg)
             time.sleep(0.05)
         responder(update, "_Broadcast sent!_")
@@ -290,11 +290,11 @@ def cc(update, context):
         sender_name = userdict[user_id]
         for user_id in adminset:
             address = user_id
-            msg = "*Message to Camp Comm from {}:*\n{}".format(
+            msg = "*Message to Admins from {}:*\n{}".format(
                 sender_name, message)
             flood(context, address, msg)
             time.sleep(0.05)
-        responder(update, "_Message sent to Camp Comm!_")
+        responder(update, "_Message sent to Admins!_")
 
 
 @run_async
@@ -343,7 +343,7 @@ def message_err(update, context):
 
 @run_async
 def message_choice(update):
-    update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.\n\n(Messages sent to other campers using their @username are anonymous)\n\nSupported message types: Text, Sticker, GIF, Photo, Video, Audio, Voice/Video Message, Document",
+    update.message.reply_text("*Who do you want to send to?*\nSelect an option from the buttons below, or type a username.",
                               parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=telegram.ReplyKeyboardMarkup([['My Mortal'], ['My Angel'], ['Exit']], resize_keyboard=True, one_time_keyboard=True))
 
 
@@ -399,7 +399,7 @@ def selectangel(update, context):
     return CONTENT
 
 
-def selectcamper(update, context):
+def selectplayer(update, context):
     context.user_data['sender'] = 'Anonymous'
     user_name = update.message.text
     user_name = user_name.strip('@')
@@ -604,7 +604,7 @@ def who(update, context):
         requester = None
     elif requester == None and user_id in adminset:
         requester = user_id
-        responder(update, "_Type /who on camper's phone to check their angel._")
+        responder(update, "_Type /who on player's phone to check their angel._")
     else:
         responder(update, "`Unable to use this command.`")
 
@@ -631,7 +631,7 @@ def main():
                                     selectangel),
                      MessageHandler(Filters.regex('^Exit$'),
                                     exit),
-                     MessageHandler(Filters.regex('^@'), selectcamper)],
+                     MessageHandler(Filters.regex('^@'), selectplayer)],
             CONTENT: [MessageHandler(Filters.regex('^/exit$'), exit),
                       MessageHandler(Filters.photo, sendphoto),
                       MessageHandler(Filters.audio, sendaudio),
@@ -651,8 +651,8 @@ def main():
     dispatcher.add_handler(start_handler)
     join_handler = CommandHandler('join', join)
     dispatcher.add_handler(join_handler)
-    yfcampcomm_handler = CommandHandler('yfcampcomm', yfcampcomm)
-    dispatcher.add_handler(yfcampcomm_handler)
+    botadmin_handler = CommandHandler('botadmin', botadmin)
+    dispatcher.add_handler(botadmin_handler)
     newgame_handler = CommandHandler('newgame', newgame)
     dispatcher.add_handler(newgame_handler)
     endgame_handler = CommandHandler('endgame', endgame)
