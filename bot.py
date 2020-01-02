@@ -8,6 +8,7 @@ from functools import wraps
 import random
 import time
 from cred import bottoken, adminpass, port
+import json
 
 # pip install pyopenssl
 from requests import get
@@ -43,55 +44,42 @@ logger = logging.getLogger(__name__)
 TARGET, CONTENT = range(2)
 
 
-def get_users():
-    global userdict
-    with open('users.txt', 'a+') as userfile:
-        userdict = {}
-    with open('users.txt', 'r', encoding='utf-8') as userfile:
-        for line in userfile:
-            line = line.strip('\n')
-            line = line.split(',')
-            userdict[int(line[0])] = line[1]
-
-
-def get_usernames():
-    global usernamedict
-    with open('usernames.txt', 'a+') as usernamefile:
-        usernamedict = {}
-    with open('usernames.txt', 'r') as usernamefile:
-        for line in usernamefile:
-            line = line.strip('\n')
-            line = line.split(',')
-            usernamedict[line[0]] = int(line[1])
-
-
-def get_admin():
-    global adminset
-    with open('admin.txt', 'a+') as adminfile:
-        adminset = set()
-    with open('admin.txt', 'r') as adminfile:
-        for line in adminfile:
-            line = line.strip('\n')
-            adminset.add(int(line))
-
-
-def get_gamelist():
+def loader():
+    global users
+    try:
+        with open('users.json') as usersfile:
+            users = json.load(usersfile)
+    except:
+        with open('users.json', 'w+') as usersfile:
+            users = {}
+    global usernames
+    try:
+        with open('usernames.json') as usernamesfile:
+            usernames = json.load(usernamesfile)
+    except:
+        with open('usernames.json', 'w+') as usernamesfile:
+            usernames = {}
+    global admins
+    try:
+        with open('admins.json') as adminsfile:
+            admins = json.load(adminsfile)
+    except:
+        with open('admins.json', 'w+') as adminsfile:
+            admins = []
     global mymortal
+    try:
+        with open('mymortal.json') as mymortalfile:
+            mymortal = json.load(mymortalfile)
+    except:
+        with open('mymortal.json', 'w+') as mymortalfile:
+            mymortal = {}
     global myangel
-    with open('mymortal.txt', 'a+') as mortalfile:
-        mymortal = {}
-    with open('myangel.txt', 'a+') as angelfile:
-        myangel = {}
-    with open('mymortal.txt', 'r') as mortalfile:
-        for line in mortalfile:
-            line = line.strip('\n')
-            line = line.split(',')
-            mymortal[int(line[0])] = int(line[1])
-    with open('myangel.txt', 'r') as angelfile:
-        for line in angelfile:
-            line = line.strip('\n')
-            line = line.split(',')
-            myangel[int(line[0])] = int(line[1])
+    try:
+        with open('myangel.json') as myangelfile:
+            myangel = json.load(myangelfile)
+    except:
+        with open('myangel.json', 'w+') as myangelfile:
+            myangel = {}
 
 
 def parse(text, length):
@@ -103,8 +91,8 @@ def parse(text, length):
 def adminonly(func):
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
-        user_id = update.effective_user.id
-        if user_id not in adminset:
+        user_id = str(update.effective_user.id)
+        if user_id not in admins:
             flood(context, user_id, "*ADMIN ONLY*\nYou shall not pass!")
             return
         return func(update, context, *args, **kwargs)
@@ -114,8 +102,8 @@ def adminonly(func):
 def useronly(func):
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
-        user_id = update.effective_user.id
-        if user_id not in userdict:
+        user_id = str(update.effective_user.id)
+        if user_id not in users:
             flood(context, user_id, "Please /join first.")
             return
         return func(update, context, *args, **kwargs)
@@ -125,7 +113,7 @@ def useronly(func):
 @run_async
 def start(update, context):
     update.message.reply_text(
-        "*Welcome to the LTF Angel & Mortal Bot!*\nPress /join to enter.", parse_mode=telegram.ParseMode.MARKDOWN)
+        "*Welcome to LTF Angel & Mortal!*\n\nPress /join to enter.", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @run_async
@@ -133,6 +121,7 @@ def unknown(update, context):
     commands = '''
 *COMMANDS*
 /join - Join the game
+/leave - Leave the game
 /message - Send messages
 /cc - Message to admins
 
@@ -150,40 +139,44 @@ def unknown(update, context):
 
 
 def join(update, context):
-    context.bot.send_chat_action(
-        chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
-    user_id = update.message.from_user.id
-    if user_id in userdict:
-        responder(
-            update, "You are already in the list.\nPress /help for info on commands.")
-    else:
-        user_first = update.message.from_user.first_name
-        user_last = update.message.from_user.last_name
-        if user_last != None:
-            user_first = user_first + ' ' + user_last
-        with open('users.txt', 'a+') as userfile:
-            userfile.write("{},{}\n".format(user_id, user_first))
-        userdict[user_id] = user_first
-        user_name = update.message.from_user.username
-        if user_name != None:
-            with open('usernames.txt', 'a+') as usernamefile:
-                usernamefile.write("{},{}\n".format(user_name, user_id))
-            usernamedict[user_name] = user_id
-        responder(
-            update, "Your name has been added to the list.\nPress /help for info on commands.")
+    user_id = str(update.message.from_user.id)
+    first_name = update.message.from_user.first_name
+    last_name = update.message.from_user.last_name
+    full_name = (str(first_name or '') + ' ' + str(last_name or '')).strip()
+    users[user_id] = full_name
+    with open('users.json', 'w') as userfile:
+        json.dump(users, userfile)
+    username = update.message.from_user.username
+    if username:
+        usernames[username] = user_id
+        with open('usernames.json', 'w') as usernamesfile:
+            json.dump(usernames, usernamesfile)
+    responder(
+        update, "Welcome *{}*.\n\nPress /help for info on commands.".format(full_name))
 
 
 @useronly
+def leave(update, context):
+    user_id = str(update.message.from_user.id)
+    if user_id not in mymortal:
+        del users[user_id]
+        with open('users.json', 'w') as userfile:
+            json.dump(users, userfile)
+        responder(update, "_You have left the game._")
+    else:
+        responder(update, "_You cannot leave while game is in progress._")
+
+
 def botadmin(update, context):
-    user_id = update.message.from_user.id
-    if user_id in adminset:
+    user_id = str(update.message.from_user.id)
+    if user_id in admins:
         responder(update, "`You are already an admin!`")
     else:
         message = parse(update.message.text, len("botadmin"))
         if message == adminpass:
-            with open('admin.txt', 'a+') as adminfile:
-                adminfile.write("{}\n".format(user_id))
-                adminset.add(user_id)
+            admins.append(user_id)
+            with open('admins.json', 'w') as adminfile:
+                json.dump(admins, adminfile)
             responder(update, "`You are now an admin!`")
         else:
             responder(update, "`Nope.`")
@@ -193,16 +186,15 @@ def botadmin(update, context):
 def newgame(update, context):
     responder(update, "_Randomising angels & mortals..._")
     time.sleep(0.05)
-    if len(userdict) < 2:
-        responder(update, "_Error! Only 1 player._")
+    if len(users) < 3:
+        responder(update, "_Error! At least 3 players needed._")
         return
     do_pairings()
-    get_gamelist()
     responder(update, "_Sending everyone their mortal's names..._")
     time.sleep(0.05)
     for user_id in mymortal:
         mortal_id = mymortal[user_id]
-        mortal_name = userdict[mortal_id]
+        mortal_name = users[mortal_id]
         address = user_id
         msg = "Your mortal is: *{mortal}*\nUse /message to talk to them.".format(
             mortal=mortal_name)
@@ -216,49 +208,59 @@ def newgame(update, context):
 def shuffle():
     list1 = []
     list2 = []
-    for user_id in userdict:
+    for user_id in users:
         list1.append(user_id)
         list2.append(user_id)
     random.shuffle(list1)
     random.shuffle(list2)
-    for i in range(len(list1)):
-        if list1[i] == list2[i]:
-            return True
-    with open('mymortal.txt', 'w') as mortalfile:
-        with open('myangel.txt', 'w') as angelfile:
-            for i in range(len(list1)):
-                mortalfile.write("{},{}\n".format(list1[i], list2[i]))
-                angelfile.write("{},{}\n".format(list2[i], list1[i]))
-    return False
+    mymortal = dict(zip(list1, list2))
+    for key, value in mymortal.items():
+        if key == value:
+            return False
+        if key == mymortal[value]:
+            return False
+    myangel = {value: key for key, value in mymortal.items()}
+    with open('mymortal.json', 'w') as mymortalfile:
+        json.dump(mymortal, mymortalfile)
+    with open('myangel.json', 'w') as myangelfile:
+        json.dump(myangel, myangelfile)
+    return True
 
 
 def do_pairings():
     result = shuffle()
-    while result:
+    while not result:
         result = shuffle()
+    loader()
 
 
 @adminonly
 def endgame(update, context):
     responder(update, "_Revealing angels & mortals..._")
     time.sleep(0.05)
-    compose = '*Game Ended!* Angel -> Mortal list:\n\n'
+    compose = '*Game Ended!*\n\n*Angel -> Mortal list:*\n'
     for user_id in myangel:
         angel_id = myangel[user_id]
-        angel_name = userdict[angel_id]
+        angel_name = users[angel_id]
         address = user_id
         msg = "Your angel was: *{angel}*".format(angel=angel_name)
         flood(context, address, msg)
         time.sleep(0.05)
         sendprofilepic(context, angel_id, address)
         time.sleep(0.05)
-        user_name = userdict[user_id]
+        user_name = users[user_id]
         compose += "[{}](tg://user?id={}) -> [{}](tg://user?id={})\n".format(
             angel_name, angel_id, user_name, user_id)
-    for user_id in adminset:
+    for user_id in admins:
         address = user_id
         flood(context, address, compose)
         time.sleep(0.05)
+    blank = {}
+    with open('mymortal.json', 'w') as mymortalfile:
+        json.dump(blank, mymortalfile)
+    with open('myangel.json', 'w') as myangelfile:
+        json.dump(blank, myangelfile)
+    loader()
 
 
 @adminonly
@@ -270,9 +272,8 @@ def broadcast(update, context):
     else:
         responder(update, "_Sending..._")
         time.sleep(0.05)
-        for user_id in userdict:
-            address = user_id
-            msg = "*BROADCAST FROM ADMINS:*\n{}".format(message)
+        for address in users:
+            msg = "*BROADCAST FROM ADMINS:*\n\n{}".format(message)
             flood(context, address, msg)
             time.sleep(0.05)
         responder(update, "_Broadcast sent!_")
@@ -286,11 +287,10 @@ def cc(update, context):
     else:
         responder(update, "_Sending..._")
         time.sleep(0.05)
-        user_id = update.message.from_user.id
-        sender_name = userdict[user_id]
-        for user_id in adminset:
-            address = user_id
-            msg = "*Message to Admins from {}:*\n{}".format(
+        user_id = str(update.message.from_user.id)
+        sender_name = users[user_id]
+        for address in admins:
+            msg = "*Message to Admins from {}:*\n\n{}".format(
                 sender_name, message)
             flood(context, address, msg)
             time.sleep(0.05)
@@ -299,7 +299,7 @@ def cc(update, context):
 
 @run_async
 def flood(context, address, msg):
-    context.bot.send_message(chat_id=address, text=msg,
+    context.bot.send_message(chat_id=int(address), text=msg,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
@@ -325,10 +325,10 @@ def players(update, context):
         chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     count = 1
     compose = "*Players:*\n"
-    playerlist = sorted(userdict.items(), key=lambda x: x[1].lower())
+    playerlist = sorted(users.items(), key=lambda x: x[1].lower())
     for (playerid, playername) in playerlist:
         taggedplayer = "[{}](tg://user?id={})".format(playername, playerid)
-        if playerid in adminset:
+        if playerid in admins:
             taggedplayer += " `[Admin]`"
         compose += "{}. {}\n".format(count, taggedplayer)
         count += 1
@@ -349,15 +349,15 @@ def message_choice(update):
 
 @useronly
 def message(update, context):
-    user_id = update.message.from_user.id
+    user_id = str(update.message.from_user.id)
     mortal_id = mymortal.get(user_id)
     angel_id = myangel.get(user_id)
-    if (mortal_id == None) or (angel_id == None):
+    if not mortal_id:
         responder(update, "You have not been assigned an angel/mortal.")
         return ConversationHandler.END
     else:
-        context.user_data['mortal'] = mortal_id
-        context.user_data['angel'] = angel_id
+        context.user_data['mortal'] = int(mortal_id)
+        context.user_data['angel'] = int(angel_id)
         message_choice(update)
     return TARGET
 
@@ -378,7 +378,8 @@ def invalid(update, context):
 def selectmortal(update, context):
     context.user_data['recipient'] = context.user_data['mortal']
     context.user_data['sender'] = 'Your Angel'
-    context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
+    context.user_data['recipient_name'] = users[str(
+        context.user_data['recipient'])]
     responder(update, "I will send your messages (anonymously) to *{}* until you type /exit.".format(
         context.user_data['recipient_name']))
     context.bot.send_chat_action(
@@ -388,9 +389,8 @@ def selectmortal(update, context):
 
 def selectangel(update, context):
     context.user_data['recipient'] = context.user_data['angel']
-    user_id = update.message.from_user.id
-    sender_name = userdict[user_id]
-    context.user_data['sender'] = sender_name
+    user_id = str(update.message.from_user.id)
+    context.user_data['sender'] = users[user_id]
     context.user_data['recipient_name'] = 'Your Angel'
     responder(
         update, "I will send your messages (with your name) to *Your Angel* until you type /exit.")
@@ -403,7 +403,7 @@ def selectplayer(update, context):
     context.user_data['sender'] = 'Anonymous'
     user_name = update.message.text
     user_name = user_name.strip('@')
-    if user_name not in usernamedict:
+    if user_name not in usernames:
         responder(update, "*Username not found.*")
         context.user_data.clear()
         time.sleep(0.05)
@@ -411,8 +411,8 @@ def selectplayer(update, context):
             update, "*Exited messaging mode.*\nType /message again to send a message.")
         return ConversationHandler.END
     else:
-        context.user_data['recipient'] = usernamedict[user_name]
-        context.user_data['recipient_name'] = userdict[context.user_data['recipient']]
+        context.user_data['recipient'] = usernames[user_name]
+        context.user_data['recipient_name'] = users[context.user_data['recipient']]
         responder(update, "I will send your messages (anonymously) to *{}* until you type /exit.".format(
             context.user_data['recipient_name']))
         context.bot.send_chat_action(
@@ -576,10 +576,7 @@ def exit(update, context):
 
 @adminonly
 def reset(update, context):
-    get_users()
-    get_usernames()
-    get_admin()
-    get_gamelist()
+    loader()
     responder(update, "_Reset complete._")
 
 
@@ -590,19 +587,19 @@ def who(update, context):
         requester
     except NameError:
         requester = None
-    user_id = update.message.from_user.id
+    user_id = str(update.message.from_user.id)
     if requester != None and user_id == requester:
         responder(update, "_You cannot check your own angel!_")
     elif requester != None:
         mortal = user_id
-        mortal = userdict[user_id]
-        angel = myangel[user_id]
-        angel = userdict[angel]
+        mortal = users.get(user_id)
+        angel = myangel.get(user_id)
+        angel = users.get(angel)
         flood(context, requester, "*{}*'s angel is *{}*.".format(mortal, angel))
         responder(
-            update, "Your angel has been revealed to *{}*.".format(userdict[requester]))
+            update, "Your angel has been revealed to *{}*.".format(users[requester]))
         requester = None
-    elif requester == None and user_id in adminset:
+    elif requester == None and user_id in admins:
         requester = user_id
         responder(update, "_Type /who on player's phone to check their angel._")
     else:
@@ -611,7 +608,7 @@ def who(update, context):
 
 @adminonly
 def tester(update, context):
-    user_id = update.effective_user.id
+    user_id = str(update.effective_user.id)
     mymortal[user_id] = user_id
     myangel[user_id] = user_id
     responder(
@@ -646,39 +643,24 @@ def main():
         fallbacks=[MessageHandler(Filters.all, invalid)]
     )
     dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('join', join))
+    dispatcher.add_handler(CommandHandler('leave', leave))
+    dispatcher.add_handler(CommandHandler('botadmin', botadmin))
+    dispatcher.add_handler(CommandHandler('newgame', newgame))
+    dispatcher.add_handler(CommandHandler('endgame', endgame))
+    dispatcher.add_handler(CommandHandler('broadcast', broadcast))
+    dispatcher.add_handler(CommandHandler('cc', cc))
+    dispatcher.add_handler(CommandHandler('players', players))
+    dispatcher.add_handler(CommandHandler('reset', reset))
+    dispatcher.add_handler(CommandHandler('who', who))
+    dispatcher.add_handler(CommandHandler('tester', tester))
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+    dispatcher.add_handler(MessageHandler(Filters.all, message_err))
 
-    start_handler = CommandHandler('start', start)
-    dispatcher.add_handler(start_handler)
-    join_handler = CommandHandler('join', join)
-    dispatcher.add_handler(join_handler)
-    botadmin_handler = CommandHandler('botadmin', botadmin)
-    dispatcher.add_handler(botadmin_handler)
-    newgame_handler = CommandHandler('newgame', newgame)
-    dispatcher.add_handler(newgame_handler)
-    endgame_handler = CommandHandler('endgame', endgame)
-    dispatcher.add_handler(endgame_handler)
-    broadcast_handler = CommandHandler('broadcast', broadcast)
-    dispatcher.add_handler(broadcast_handler)
-    cc_handler = CommandHandler('cc', cc)
-    dispatcher.add_handler(cc_handler)
-    players_handler = CommandHandler('players', players)
-    dispatcher.add_handler(players_handler)
-    reset_handler = CommandHandler('reset', reset)
-    dispatcher.add_handler(reset_handler)
-    who_handler = CommandHandler('who', who)
-    dispatcher.add_handler(who_handler)
-    tester_handler = CommandHandler('tester', tester)
-    dispatcher.add_handler(tester_handler)
-    unknown_handler = MessageHandler(Filters.command, unknown)
-    dispatcher.add_handler(unknown_handler)
-    message_handler = MessageHandler(Filters.all, message_err)
-    dispatcher.add_handler(message_handler)
+    loader()
 
-    get_users()
-    get_usernames()
-    get_admin()
-    get_gamelist()
-
+    updater.start_polling()
     updater.start_webhook(listen='0.0.0.0',
                           port=port,
                           url_path=bottoken,
